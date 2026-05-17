@@ -135,13 +135,6 @@ Your console will output:
 
 ---
 
-## 👥 Authors & Group Members
-
-This project was developed for the University Admissions Career Counselor practical laboratory assignment. 
-
-*   **Lead Architect / ML Engineer**: [Your Name]
-*   **Group Members**: [Member 1], [Member 2], [Member 3]
-*   **Academic Supervisor**: [Professor / Teacher Name]
 
 ---
 
