@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Admissions | Adaptive ML Career Counsellor</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="glass-bg-decor circles">
+        <div class="circle c1"></div>
+        <div class="circle c2"></div>
+    </div>
+    
+    <div class="main-wrapper">
+        <div class="app-container">
+            <!-- LEFT PANEL: Chat Interface -->
+            <section class="panel-left">
+                <header class="app-header">
+                    <div class="logo-container">
+                        <div class="logo-sparkle">✦</div>
+                        <div>
+                            <h1>Admissions Gateway</h1>
+                            <p class="subtitle">Traditional ML Adaptive Chatbot</p>
+                        </div>
+                    </div>
+                    <div class="header-stats">
+                        <div class="stat-badge" id="turn-badge">Step: 1 / 6</div>
+                    </div>
+                </header>
+
+                <main class="chat-container" id="chat-container">
+                    <!-- Dynamic chat messages injected here -->
+                </main>
+
+                <div class="loading-indicator hidden" id="loading-indicator">
+                    <div class="bounce-dot"></div>
+                    <div class="bounce-dot"></div>
+                    <div class="bounce-dot"></div>
+                </div>
+
+                <div class="interactive-input-wrapper">
+                    <!-- Chip Options (Selectable Options) -->
+                    <div class="options-container" id="options-container">
+                        <!-- Selectable buttons dynamically added here -->
+                    </div>
+
+                    <!-- Open Ended Text Area -->
+                    <div class="input-area" id="input-area">
+                        <textarea id="user-input" placeholder="Type your own custom response here..." rows="1"></textarea>
+                        <button id="send-btn" aria-label="Send message" title="Submit Custom Text Response">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="send-icon">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: Explainable ML Dashboard -->
+            <section class="panel-right" id="xai-panel">
+                <div class="panel-header">
+                    <h2>Live Explainable ML Analysis</h2>
+                    <span class="pulse-indicator">✦ Live</span>
+                </div>
+
+                <div class="dashboard-content">
+                    <!-- Section 1: Probability Fit (Random Forest Predictions) -->
+                    <div class="xai-card">
+                        <h3>Random Forest Probability Distribution</h3>
+                        <p class="card-meta">Aptitude weights across 8 career tracks</p>
+                        <div class="probabilities-list" id="probabilities-list">
+                            <!-- JS will inject 8 progress bars here -->
+                        </div>
+                    </div>
+
+                    <!-- Section 2: TF-IDF Highlight Cloud -->
+                    <div class="xai-card">
+                        <h3>Linguistic Feature Extraction (TF-IDF)</h3>
+                        <p class="card-meta">Active vocabulary detected in your open text</p>
+                        <div class="keyword-cloud-wrapper">
+                            <div class="keyword-cloud" id="keyword-cloud">
+                                <span class="empty-state-text">Waiting for custom typed answers...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Decision Tree Splitting Path -->
+                    <div class="xai-card">
+                        <h3>Decision Tree Path Traversal</h3>
+                        <p class="card-meta">Deterministic routing tree splits</p>
+                        <div class="tree-path" id="tree-path">
+                            <span class="empty-state-text">Start replying to view the classifier path splits.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- SCORECARD OVERLAY: Shown at completion -->
+        <div class="scorecard-overlay hidden" id="scorecard-overlay">
+            <div class="scorecard-card">
+                <div class="scorecard-header">
+                    <div class="trophy-sparkle">🏆</div>
+                    <h2>Your Personalized Career Report</h2>
+                    <p>Admissions Assessment Successful</p>
+                </div>
+
+                <div class="scorecard-results">
+                    <div class="rec-box primary-rec">
+                        <span class="badge">Primary Suggestion</span>
+                        <h3 id="primary-rec-title">Computer Science</h3>
+                        <p class="rec-desc">Highest statistical match based on your interests and problem-solving patterns.</p>
+                    </div>
+
+                    <div class="rec-box secondary-rec">
+                        <span class="badge">Secondary Choice</span>
+                        <h3 id="secondary-rec-title">Electrical Engineering</h3>
+                        <p class="rec-desc">Strong alternate path aligned with your mathematical or hardware inclinations.</p>
+                    </div>
+
+                    <div class="justification-container">
+                        <h4>Aptitude & Decision Justification:</h4>
+                        <ul id="justification-list">
+                            <!-- Dynanically populated bullets -->
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="scorecard-actions">
+                    <button class="btn-primary" id="restart-btn">Restart Assessment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

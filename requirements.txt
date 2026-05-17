@@ -1,0 +1,10 @@
+# ── Core Backend Web Framework ──
+fastapi>=0.100.0
+uvicorn>=0.22.0
+
+# ── Classical Machine Learning & Feature Engineering ──
+numpy>=1.22.0
+scikit-learn>=1.0.0
+
+# ── Deep Learning Semantic Embeddings (Option A) ──
+sentence-transformers>=2.2.0
