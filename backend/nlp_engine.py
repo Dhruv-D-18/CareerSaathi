@@ -53,23 +53,31 @@ def normalize_chat_slang(text: str) -> str:
         cleaned = re.sub(pattern, replacement, cleaned)
     return cleaned
 
-QUESTION_PATTERNS = [
-    r'\?',
-    r'\b(what|why|how|when|where|which|who|whose)\b',
-    r'\b(can\s+i|could\s+i|should\s+i|is\s+it|is\s+there|will\s+i|do\s+i|are\s+there)\b',
-    r'\b(difference\s+between|tell\s+me\s+about|what\s+about|explain)\b'
+# Strict question detection: Only triggers when user is genuinely querying the counselor
+EXPLICIT_QUESTION_STARTS = [
+    r'^(what|why|when|where|which|who)\s+(is|are|do|does|can|will|should|would|types|kind)\b',
+    r'^(can\s+i|could\s+i|should\s+i|is\s+it|is\s+there|will\s+i|do\s+i|how\s+do\s+i|how\s+can\s+i)\b',
+    r'^(difference\s+between|tell\s+me\s+about|what\s+about|explain\s+to\s+me)\b'
 ]
 
 def is_interrogative(text: str) -> bool:
-    """Detects whether user is posing a question rather than purely answering."""
+    """
+    Detects whether user is posing a direct question to the counselor.
+    Ignores descriptive statements like 'like how we can automate things'.
+    """
     if not text:
         return False
     cleaned = text.lower().strip()
+    
+    # Direct question mark at the end or inside
     if "?" in cleaned:
         return True
-    for pat in QUESTION_PATTERNS:
+        
+    # Check if utterance begins with a direct interrogative prompt
+    for pat in EXPLICIT_QUESTION_STARTS:
         if re.search(pat, cleaned):
             return True
+            
     return False
 
 def extract_representative_quotes(user_utterances: List[str], top_traits: List[Dict]) -> List[Dict[str, str]]:

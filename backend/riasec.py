@@ -389,13 +389,14 @@ def apply_negative_feedback(current_scores: Dict[str, float], rejection_text: st
     return normalized, list(set(excluded_ids))
 
 
-def get_career_recommendations(scores: Dict[str, float], stream_filter: str = None, excluded_ids: List[str] = None, is_10th: bool = False) -> Dict:
+def get_career_recommendations(scores: Dict[str, float], stream_filter: str = None, excluded_ids: List[str] = None, is_10th: bool = False, user_text: str = "") -> Dict:
     """
     Ranks Indian degrees based on RIASEC Euclidean proximity and returns
     Primary Match, Secondary Alternative, Stream affinity, and Entrance Exam roadmap.
-    Supports negative exclusion filtering and 10th vs 12th differentiation.
+    Supports negative exclusion filtering, explicit keyword boosting, and 10th vs 12th differentiation.
     """
     excluded_ids = excluded_ids or []
+    user_text_lower = user_text.lower() if user_text else ""
     
     # Sort RIASEC traits
     sorted_riasec = sorted(scores.items(), key=lambda x: x[1], reverse=True)
@@ -420,6 +421,14 @@ def get_career_recommendations(scores: Dict[str, float], stream_filter: str = No
         # Boost if stream matches student's 12th stream
         if stream_filter and stream_filter.lower() in deg["stream"].lower():
             fit *= 1.15
+
+        # Surface Keyword Attribution Boost:
+        # If student explicitly mentioned mobile apps, software, code, algorithms -> strong domain affinity
+        keywords = deg.get("keywords", [])
+        matched_kws = [kw for kw in keywords if kw in user_text_lower]
+        if matched_kws:
+            kw_multiplier = min(1.35, 1.0 + (len(matched_kws) * 0.07))
+            fit *= kw_multiplier
             
         ranked_degrees.append({
             "id": deg_id,
@@ -450,12 +459,20 @@ def get_career_recommendations(scores: Dict[str, float], stream_filter: str = No
     primary = ranked_degrees[0]
     secondary = ranked_degrees[1] if len(ranked_degrees) > 1 else ranked_degrees[0]
     
+    # If student is 10th standard, adapt primary presentation to highlight STREAM first
+    if is_10th:
+        # Ensure primary stream matches the top degree's required stream
+        recommended_title = f"{primary['stream']} Stream (Pathway to {primary['degree']})"
+    else:
+        recommended_title = primary["degree"]
+        
     # Also worth a look list (excluding top 1)
     alternatives = [d["degree"] for d in ranked_degrees[1:4]]
     
     return {
         "primary": primary,
         "secondary": secondary,
+        "recommended_title": recommended_title,
         "top_stream": top_stream,
         "stream_affinities": stream_affinities,
         "alternatives": alternatives,

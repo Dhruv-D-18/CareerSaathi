@@ -536,9 +536,11 @@ body {
 }
 
 .journey-step.completed .step-num {
-    background-color: #ffffff;
+    background-color: var(--univ-crimson);
     border-color: var(--univ-crimson);
-    color: var(--univ-crimson);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 800;
 }
 
 .step-content {

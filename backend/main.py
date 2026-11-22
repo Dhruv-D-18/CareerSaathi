@@ -136,7 +136,8 @@ async def chat_endpoint(state: ChatState):
             scores=current_riasec,
             stream_filter=state.stream,
             excluded_ids=state.excluded_ids,
-            is_10th=is_10th
+            is_10th=is_10th,
+            user_text=cumulative_text
         )
         
         return {
@@ -215,7 +216,8 @@ async def chat_endpoint(state: ChatState):
             scores=updated_riasec,
             stream_filter=state.stream,
             excluded_ids=state.excluded_ids,
-            is_10th=is_10th
+            is_10th=is_10th,
+            user_text=cumulative_text
         )
         report = build_dossier_payload(recs, updated_riasec, new_history, is_10th)
         state.history = new_history
@@ -277,7 +279,8 @@ async def chat_endpoint(state: ChatState):
             scores=updated_riasec,
             stream_filter=state.stream,
             excluded_ids=state.excluded_ids,
-            is_10th=is_10th
+            is_10th=is_10th,
+            user_text=cumulative_text
         )
         dossier_preview = build_dossier_payload(recs, updated_riasec, new_history, is_10th)
         
@@ -325,9 +328,12 @@ def build_dossier_payload(recs: Dict, riasec_scores: Dict[str, float], history: 
         primary_deg, secondary_deg, top_traits, user_utterances
     )
     
+    primary_title = recs.get("recommended_title", primary_deg["degree"])
+    
     return {
         "is_10th": is_10th,
-        "primary_recommendation": primary_deg["degree"],
+        "primary_recommendation": primary_title,
+        "primary_degree_name": primary_deg["degree"],
         "primary_stream": primary_deg["stream"],
         "primary_fit": primary_deg["fit_score"],
         "primary_id": primary_deg.get("id", ""),

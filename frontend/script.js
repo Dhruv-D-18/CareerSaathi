@@ -343,15 +343,21 @@ function adjustTextareaHeight(el) {
 function updateJourneyRail(stageNum, stageName) {
     currentStageNum = stageNum;
     
-    // Update Step items
+    // Update Step items with checkmarks and active states
     for (let i = 1; i <= 4; i++) {
         const stepEl = document.getElementById(`step-${i}`);
         if (!stepEl) continue;
+        const numEl = stepEl.querySelector(".step-num");
+        
         stepEl.classList.remove("active", "completed");
         if (i < stageNum) {
             stepEl.classList.add("completed");
+            if (numEl) numEl.innerHTML = "✓";
         } else if (i === stageNum) {
             stepEl.classList.add("active");
+            if (numEl) numEl.innerHTML = `${i}`;
+        } else {
+            if (numEl) numEl.innerHTML = `${i}`;
         }
     }
 

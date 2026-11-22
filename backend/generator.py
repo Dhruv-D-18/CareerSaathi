@@ -111,9 +111,10 @@ Student's latest response: "{user_reply}"
 Current Goal: {stage_focus}
 
 CRITICAL RULES:
-1. DIRECT RELEVANCE: Look at what the student literally said ("{user_reply}"). If they mentioned coding, software, or tech, talk about CODING, SOFTWARE, or TECH. If they mentioned design, talk about DESIGN. Never force business or sales onto a tech enthusiast!
-2. NO GENERIC FILLER: Do NOT start with "That's a great choice!", "That's a great idea!", or "Interesting!". Start directly with your insight or question.
-3. Keep it conversational, like a thoughtful mentor talking 1-on-1. Maximum 35 words. No bullets or A/B/C:"""
+1. DIRECT RELEVANCE: Look at what the student literally said ("{user_reply}"). If they mentioned coding, software, mobile apps, or automation, talk about SOFTWARE, CODING, or APPS. Never force business, sales, or unrelated topics!
+2. NO PREACHING: Never lecture the student about "focusing on academic goals" or "studying hard for entrance exams". Always stay encouraging, curious, and collaborative.
+3. NO GENERIC FILLER: Do NOT start with "That's a great choice!", "That's a great idea!", or "Interesting!". Start directly with your insight or question.
+4. Keep it conversational, like a thoughtful mentor talking 1-on-1. Maximum 35 words. No bullets or A/B/C:"""
 
     response = query_local_gemma(prompt, timeout=25, max_tokens=85)
     
@@ -132,15 +133,15 @@ CRITICAL RULES:
 def answer_student_question(question: str, stream: str, edu_level: str, history: List[Dict[str, str]]) -> str:
     """
     Answers a student's direct question concisely and authoritatively via Gemma-2B,
-    addressing entrance exams, syllabus doubts, or career viability.
+    addressing entrance exams, syllabus doubts, or career viability without preaching.
     """
-    prompt = f"""You are an experienced admissions counselor at Navrachana University.
-The student ({edu_level}, {stream}) is asking:
-"{question}"
+    prompt = f"""You are a helpful, knowledgeable career counselor talking with a student ({edu_level}, {stream}).
+The student is asking: "{question}"
 
-Provide a direct, authoritative, and reassuring answer in 2 to 3 concise sentences (under 50 words). Mention practical realities like entrance exams (CUET/JEE/NEET), subject prerequisites, or career outlook if relevant:"""
+Answer their question directly and helpfully in 1 to 2 conversational sentences (under 40 words).
+Do NOT give generic lectures about studying hard or academic goals. Answer their specific curiosity:"""
 
-    ans = query_local_gemma(prompt, timeout=25, max_tokens=100)
+    ans = query_local_gemma(prompt, timeout=25, max_tokens=85)
     if not ans or len(ans.strip()) < 15:
         q_lower = question.lower()
         if "bio" in q_lower or "pcb" in q_lower:
