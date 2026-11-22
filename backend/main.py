@@ -69,6 +69,7 @@ async def chat_endpoint(state: ChatState):
     if state.action == "start" or (state.turn_count == 0 and not user_input):
         state.turn_count = 1
         state.phase = "scenario"
+        state.action = "chat"  # MUST be reset to chat so subsequent turns never repeat start!
         state.education_level = "10th Standard" if is_10th else "12th Standard"
         state.stream = "Post-10th Streams" if is_10th else "Undergraduate Degrees"
         

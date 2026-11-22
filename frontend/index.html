@@ -14,19 +14,13 @@
     <!-- SCREEN 1: LANDING SCREEN (Matching Claude Wireframe 1)                  -->
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
     <div id="landing-screen" class="screen-view active">
-        <!-- University Header Bar -->
+        <!-- Top Header Bar -->
         <header class="univ-top-header">
             <div class="univ-logo-wrap">
-                <img src="assets/nuv_logo.png" alt="Navrachana University" class="univ-logo-img" onerror="this.style.display='none'">
                 <div class="univ-title-text">
                     <span class="univ-brand-name">CareerSathi</span>
-                    <span class="univ-sub-tag">Cognitive Career & Stream Advisory • Navrachana University</span>
+                    <span class="univ-sub-tag">Cognitive Career & Stream Advisory</span>
                 </div>
-            </div>
-            <div class="lang-selector-pills">
-                <span class="lang-pill active">English</span>
-                <span class="lang-pill">हिन्दी</span>
-                <span class="lang-pill">ગુજરાતી</span>
             </div>
         </header>
 
@@ -59,7 +53,7 @@
             <!-- Institutional Trust & Academic Footnote -->
             <footer class="landing-footer">
                 <p class="framework-note">Based on Holland's RIASEC Psychometric Framework & Dense S-BERT NLP. Local On-Device SLM (Gemma 2 2B on RTX 4060). Your answers stay 100% private in this session.</p>
-                <p class="academic-credit">Department of Computer Science & Engineering, Navrachana University • CSE708 NLP Lab End Sem Practical</p>
+                <p class="academic-credit">Department of Computer Science & Engineering • CSE708 NLP Lab End Sem Practical</p>
             </footer>
         </main>
     </div>
@@ -72,17 +66,12 @@
         <header class="app-navbar">
             <div class="nav-left">
                 <div class="brand-clickable" onclick="returnToLanding()" title="Return to Landing Page">
-                    <img src="assets/nuv_logo.png" alt="Navrachana" class="nav-logo-thumb" onerror="this.style.display='none'">
                     <span class="nav-brand-title">CareerSathi</span>
                 </div>
                 <span class="pathway-tag" id="current-pathway-tag">Choosing a degree</span>
             </div>
 
             <div class="nav-right">
-                <div class="turn-counter-badge" id="turn-counter-badge">
-                    <span class="turn-dot"></span>
-                    <span id="turn-text">Turn 1 of 6–15</span>
-                </div>
                 <button class="btn-dossier-pill hidden" id="open-dossier-btn" onclick="toggleArtifactPane(true)">
                     <span>📄 View Admissions Dossier</span>
                     <span class="sparkle-icon">↗</span>

@@ -162,6 +162,7 @@ async function handleUserSubmit(event) {
     showLoading(true);
 
     try {
+        const actionToSend = (sessionState.action === "recalibrate") ? "recalibrate" : "chat";
         const payload = {
             turn_count: sessionState.turn_count,
             phase: sessionState.phase,
@@ -171,7 +172,7 @@ async function handleUserSubmit(event) {
             history: sessionState.history,
             riasec_state: sessionState.riasec_state,
             latest_message: text,
-            action: sessionState.action || "chat",
+            action: actionToSend,
             excluded_ids: sessionState.excluded_ids || [],
             rejected_degree: sessionState.rejected_degree
         };
@@ -203,19 +204,13 @@ async function handleUserSubmit(event) {
 function handleServerResponse(data) {
     if (data.state) {
         sessionState = data.state;
+        sessionState.action = "chat"; // Always ensure subsequent messages default to chat mode
     }
 
     if (data.telemetry) {
         latestTelemetry = data.telemetry;
         updateMiniTelemetry(data.telemetry);
         updateExaminerTelemetry(data.telemetry);
-    }
-
-    // Update Turn Badge
-    const turnCount = sessionState.turn_count || 1;
-    const turnTextEl = document.getElementById("turn-text");
-    if (turnTextEl) {
-        turnTextEl.innerText = `Turn ${turnCount} of 6–15`;
     }
 
     // Update Journey Rail Stage
