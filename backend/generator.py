@@ -114,17 +114,49 @@ def generate_dynamic_question(
     elif u_clean in ["the second one", "second one", "2", "option 2", "second"]:
         resolved_reply = f"{user_reply} (student selects the second option from your previous question)"
 
-    # Determine Journey Stage with dynamic non-repeating sub-focus
+    # Detect student's active domain from RIASEC codes and conversation keywords
+    is_business = top_code in ["E", "C"] or any(w in history_lower for w in ["business", "finance", "market", "trade", "startup", "commerce", "money", "invest", "entrepreneur"])
+    is_creative = top_code == "A" or any(w in history_lower for w in ["design", "art", "creative", "writing", "magazine", "media", "ui", "ux", "film", "draw"])
+    is_healthcare = (top_code in ["I", "S"]) and any(w in history_lower for w in ["medic", "doctor", "medicine", "biology", "health", "biotech", "patient", "clinic", "hospital"])
+
+    # Determine Journey Stage with dynamic non-repeating sub-focus tailored to their domain
     if turn_num <= 2:
-        stage_focus = "Deepen what excites them about the specific digital apps, tools, or projects they want to create."
+        if is_business:
+            stage_focus = "Deepen what excites them about business — e.g. launching a startup venture, financial markets/investments, or brand marketing."
+        elif is_creative:
+            stage_focus = "Deepen what excites them about creative arts — e.g. visual UI/product design, creative writing, illustration, or multimedia."
+        elif is_healthcare:
+            stage_focus = "Deepen what excites them in science/health — e.g. clinical patient care, laboratory research, or biotechnology."
+        else:
+            stage_focus = "Deepen what excites them about technology — e.g. software coding, AI algorithms, physical robotics, or tech systems."
     elif turn_num <= 4:
-        stage_focus = "Ask how they like to tackle problem-solving — breaking it down step-by-step or experimenting hands-on."
+        if is_business:
+            stage_focus = "Ask how they like to tackle business challenges — understanding customer needs, analyzing financial data, or creative marketing."
+        elif is_creative:
+            stage_focus = "Ask how they like to create — spontaneous intuitive experimentation or structured user research and prototyping."
+        elif is_healthcare:
+            stage_focus = "Ask how they approach scientific problem solving — rigorous empirical testing or diagnosing practical real-life cases."
+        else:
+            stage_focus = "Ask how they like to tackle problem-solving — breaking down logical algorithms or experimenting hands-on with tools."
     elif not team_already_discussed:
-        stage_focus = "Ask whether they prefer working independently with deep focus or collaborating actively in a group."
+        if is_business:
+            stage_focus = "Ask whether they prefer leading and negotiating with teams or diving deep into independent financial/strategic analysis."
+        elif is_creative:
+            stage_focus = "Ask whether they thrive in collaborative creative studios or deep solo artistic flow."
+        elif is_healthcare:
+            stage_focus = "Ask whether they prefer collaborative hospital/clinic teamwork or independent scientific research."
+        else:
+            stage_focus = "Ask whether they prefer working independently with deep focus or collaborating actively in a group."
+    elif is_business:
+        stage_focus = "Ask what kind of industry or real-world problem they would love to build a venture or business around."
+    elif is_creative:
+        stage_focus = "Ask what kind of audience or real-world cause they want their creative work to impact."
+    elif is_healthcare:
+        stage_focus = "Ask what real-world health or scientific breakthrough they would love to contribute to."
     elif (coding_discussed or user_ux_discussed) and not backend_logic_discussed:
         stage_focus = "Ask whether they prefer working on the core logic and technical algorithms, or crafting the user experience and interface."
     else:
-        stage_focus = "Ask what real-world domain (like healthcare apps, daily productivity, educational tools, or finance) they would love to build software for."
+        stage_focus = "Ask what real-world domain (like education, climate, productivity, or gaming) they would love to build technology for."
 
     # Prompt design for Gemma 2B: Direct, positive, without negative constraint leakage
     if is_uncertain:
@@ -152,11 +184,16 @@ Respond naturally like a friendly guide.
     
     # Intercept repetition of solo vs team if already discussed
     if response and team_already_discussed and any(w in response.lower() for w in ["solo", "collaborat", "work alone"]):
-        response = "What real-world problem would you be most excited to build an automated software tool for — like education, healthcare, or daily productivity?"
+        if is_business:
+            response = "What industry or customer challenge would you be most excited to build a business or venture around?"
+        elif is_creative:
+            response = "What kind of visual project or creative medium are you most excited to master?"
+        else:
+            response = "What real-world problem would you be most excited to solve — like education, healthcare, or daily productivity?"
 
     # Intercept repetition of backend vs UI if already discussed
     if response and backend_logic_discussed and any(w in response.lower() for w in ["intricate logic", "backend or", "user interface or", "algorithms or crafting", "visual appeal"]):
-        response = "Between building apps that solve everyday problems for millions of users or designing intelligent AI algorithms, which feels more inspiring?"
+        response = "Between building systems that solve everyday problems for millions of users or designing intelligent algorithms, which feels more inspiring?"
         
     # Fail-Safe Fallback
     if not response or len(response.strip()) < 15:
@@ -222,17 +259,25 @@ def generate_recalibration_inquiry(rejected_degree: str, user_critique: str = ""
 def get_deterministic_fallback_question(code_a: str, code_b: str, is_ambiguous: bool, stream: str, user_text: str = "", turn_num: int = 1) -> str:
     user_lower = user_text.lower()
     
-    # Stage 2 (Turns 3-4): Thinking style under crisis
+    # Context-specific business fallback
+    if any(k in user_lower for k in ["business", "market", "startup", "invest", "money", "sales", "trade", "finance"]) or code_a in ["E", "C"]:
+        if turn_num in [3, 4]:
+            return "When a major business initiative hits an unexpected roadblock, what is your natural reaction? Do you step up to lead and align the team, crunch the numbers to pivot the strategy, or focus on talking to customers to find a solution?"
+        return "In a new venture, would you feel more energized pitching strategy and marketing to clients, or managing detailed financial budgets and operations?"
+
+    # Context-specific creative arts fallback
+    if any(k in user_lower for k in ["design", "art", "creative", "writing", "ui", "ux"]) or code_a == "A":
+        if turn_num in [3, 4]:
+            return "When a creative showcase or design deadline is approaching fast, what is your natural move? Do you experiment with bold visual revisions, seek input from peers, or double down on perfecting the details?"
+        return "Do you find yourself more fulfilled by creative artistic design and visual prototyping, or structured analytical problem solving?"
+
+    # Stage 2 (Turns 3-4): Thinking style under pressure (General / Tech)
     if turn_num in [3, 4]:
-        return "When a major group project runs into chaos the day before submission, what is your natural reaction? Do you immediately make an organized checklist, take ownership of fixing the hardest technical piece yourself, or focus on coordinating the team?"
+        return "When a major project hits an unexpected roadblock before submission, what is your natural reaction? Do you make a structured checklist, take ownership of solving the core bottleneck yourself, or focus on coordinating with everyone?"
         
     # Context-specific tech fallback
-    if any(k in user_lower for k in ["code", "coding", "software", "program", "app", "tech", "platform"]):
-        return "Since you enjoy the coding and technology side, would you prefer writing the backend algorithms and database architecture, or designing the visual user interface and user experience?"
-    
-    # Context-specific business fallback
-    if any(k in user_lower for k in ["business", "market", "startup", "invest", "money", "sales"]):
-        return "In a new venture, would you feel more energized pitching corporate strategy and marketing to clients, or managing detailed financial budgets and auditing balance sheets?"
+    if any(k in user_lower for k in ["code", "coding", "software", "program", "app", "tech", "platform"]) or code_a in ["R", "I"]:
+        return "Since you enjoy the technical side, would you prefer writing the backend algorithms and database architecture, or designing the visual user interface and user experience?"
         
     # Standard RIASEC dilemmas
     pair = (code_a, code_b)

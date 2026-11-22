@@ -56,14 +56,23 @@ def normalize_chat_slang(text: str) -> str:
 # Strict question detection: Only triggers when user is genuinely querying the counselor
 EXPLICIT_QUESTION_STARTS = [
     r'^(what|why|when|where|which|who)\s+(is|are|do|does|can|will|should|would|types|kind)\b',
-    r'^(can\s+i|could\s+i|should\s+i|is\s+it|is\s+there|will\s+i|do\s+i|how\s+do\s+i|how\s+can\s+i)\b',
     r'^(difference\s+between|tell\s+me\s+about|what\s+about|explain\s+to\s+me)\b'
+]
+
+AUXILIARY_QUESTION_STARTS = [
+    r'^(can\s+i|could\s+i|should\s+i|is\s+it|is\s+there|will\s+i|do\s+i|how\s+do\s+i|how\s+can\s+i)\b'
+]
+
+ADMISSIONS_TOPIC_WORDS = [
+    "admission", "admissions", "entrance", "exam", "exams", "jee", "neet", "cuet", "gujcet", 
+    "placement", "placements", "salary", "package", "fee", "fees", "scholarship", "syllabus", 
+    "curriculum", "cutoff", "eligibility", "nuv", "navrachana", "degree", "college", "course"
 ]
 
 def is_interrogative(text: str) -> bool:
     """
     Detects whether user is posing a direct question to the counselor.
-    Ignores descriptive statements like 'like how we can automate things'.
+    Ignores descriptive statements like 'like how we can automate things' or 'is it easy for a customer'.
     """
     if not text:
         return False
@@ -73,10 +82,17 @@ def is_interrogative(text: str) -> bool:
     if "?" in cleaned:
         return True
         
-    # Check if utterance begins with a direct interrogative prompt
+    # Check explicit WH-question starts
     for pat in EXPLICIT_QUESTION_STARTS:
         if re.search(pat, cleaned):
             return True
+            
+    # For auxiliary starts (e.g. 'is it', 'can i'), require explicit query intent or topic keywords
+    for pat in AUXILIARY_QUESTION_STARTS:
+        if re.search(pat, cleaned):
+            # Only count as question if user is inquiring about admissions, exams, or courses
+            if any(w in cleaned for w in ADMISSIONS_TOPIC_WORDS):
+                return True
             
     return False
 

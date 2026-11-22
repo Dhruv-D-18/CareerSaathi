@@ -129,18 +129,3 @@ python -m spacy download en_core_web_sm
 python run.py
 ```
 Open your browser at `http://localhost:8080`.
-
----
-
-## 🧪 Automated Dialogue Verification Suite
-
-Run the automated programmatic testing suite across all 4 student tracks (10th PCM, 10th Commerce, 12th UI/UX Design, 12th Healthcare):
-
-```powershell
-python backend/test_suite.py
-```
-
----
-
-## 📄 License & Academic Attribution
-Developed by **Dhruv Dharikar** (Roll No: 23000527) under the mentorship of **Dr. Jaideepsinh Raulji** at **Navrachana University, Vadodara**. Released under the MIT License.

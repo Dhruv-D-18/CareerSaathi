@@ -411,12 +411,30 @@ async def chat_endpoint(state: ChatState):
         )
         dossier_preview = build_dossier_payload(recs, updated_riasec, new_history, is_10th)
         
-    # Contextual quick-reply chips based on stage
+    # Contextual quick-reply chips based on stage and active domain
+    sorted_codes = sorted(updated_riasec.items(), key=lambda x: x[1], reverse=True)
+    top_c = sorted_codes[0][0] if sorted_codes else "R"
+    cum_lower = cumulative_text.lower()
+    
     quick_chips = []
     if stage_num == 2:
-        quick_chips = ["I make a list and divide the tasks", "I jump straight into fixing the hardest problem", "I focus on keeping the team calm"]
+        if top_c in ["E", "C"] or any(w in cum_lower for w in ["business", "finance", "market", "startup", "commerce", "trade"]):
+            quick_chips = ["I analyze market trends & numbers", "I talk directly to customers to understand needs", "I divide tasks and coordinate the team"]
+        elif top_c == "A" or any(w in cum_lower for w in ["design", "art", "creative", "writing", "ui", "ux"]):
+            quick_chips = ["I sketch visual ideas & prototypes", "I focus on user emotions & storytelling", "I explore unconventional creative angles"]
+        elif any(w in cum_lower for w in ["medic", "bio", "doctor", "health", "science", "lab"]):
+            quick_chips = ["I research scientific data & root causes", "I run structured experiments in a lab", "I focus on practical patient impact"]
+        else:
+            quick_chips = ["I break it down into logical steps", "I experiment hands-on to see what works", "I research existing solutions first"]
     elif stage_num == 3:
-        quick_chips = ["Deep solo technical focus", "Collaborative team brainstorming", "Hands-on building & testing"]
+        if top_c in ["E", "C"] or any(w in cum_lower for w in ["business", "finance", "market", "startup", "commerce", "trade"]):
+            quick_chips = ["Leading & negotiating with teams", "Independent financial/market analysis", "Pitching to clients & driving growth"]
+        elif top_c == "A" or any(w in cum_lower for w in ["design", "art", "creative", "writing", "ui", "ux"]):
+            quick_chips = ["Collaborative creative studio", "Deep solo artistic flow", "Designing interactive experiences"]
+        elif any(w in cum_lower for w in ["medic", "bio", "doctor", "health", "science", "lab"]):
+            quick_chips = ["Collaborative clinical/lab teamwork", "Deep independent scientific research", "Hands-on patient care"]
+        else:
+            quick_chips = ["Deep solo technical focus", "Collaborative team brainstorming", "Hands-on building & testing"]
 
     return {
         "type": "question",
