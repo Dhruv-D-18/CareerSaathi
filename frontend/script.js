@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// CareerSaathi: Cognitive Career & Admissions Advisory Suite (Navrachana University)
+// CareerSaathi: Cognitive Career & Admissions Advisory Suite
 // Client State Machine, Claude-Style Artifact Split-View & Live NLP Telemetry
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -64,6 +64,7 @@ function resetAssessment() {
     };
     latestDossierReport = null;
     lastRenderedRecommendationTitle = "";
+    currentActiveRecIndex = 0;
     currentStageNum = 1;
     toggleArtifactPane(false);
 
@@ -90,6 +91,7 @@ async function startAssessment(level) {
     sessionState.excluded_ids = [];
     sessionState.rejected_degree = null;
     latestDossierReport = null;
+    currentActiveRecIndex = 0;
 
     // Update Top Navigation Tag
     const tagEl = document.getElementById("current-pathway-tag");
@@ -180,12 +182,15 @@ async function handleUserSubmit(event) {
             latest_message: text,
             action: actionToSend,
             excluded_ids: sessionState.excluded_ids || [],
-            rejected_degree: sessionState.rejected_degree
+            rejected_degree: sessionState.rejected_degree,
+            score_tier: sessionState.score_tier || "passion_first",
+            score_raw: sessionState.score_raw || ""
         };
 
         // Reset action back to normal chat after sending
         sessionState.action = "chat";
 
+        const sendTime = Date.now();
         const res = await fetch("/api/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -194,10 +199,19 @@ async function handleUserSubmit(event) {
 
         if (!res.ok) throw new Error("API error occurred.");
         const data = await res.json();
+
+        // Natural conversational pacing (minimum 1.25s thinking time)
+        // Ensures the student clearly sees "CareerSaathi is thinking..." so responses feel natural & organic
+        const elapsed = Date.now() - sendTime;
+        const minThinkingTime = 1250;
+        if (elapsed < minThinkingTime) {
+            await new Promise(resolve => setTimeout(resolve, minThinkingTime - elapsed));
+        }
+
         handleServerResponse(data);
     } catch (err) {
-        console.error(err);
-        appendBotMessage("I am processing your insights. Could you tell me a little more about whether you prefer working deeply with computational logic or collaborating on creative designs?");
+        console.error("API error:", err);
+        appendBotMessage("⚠️ There was a brief connection hiccup processing your response. Please send your message again or refresh the session.");
     } finally {
         showLoading(false);
     }
@@ -244,13 +258,14 @@ function handleServerResponse(data) {
         latestDossierReport = data.report;
         renderDossierArtifact(data.report);
 
-        // Update Docked Bar UI dynamically so student knows a new suggestion was made
+        // Update Docked Bar UI dynamically only when recommendation has actually been finalized!
         const dockedBar = document.getElementById("docked-dossier-bar");
         const dockedTitle = document.getElementById("docked-title");
         const dockedSubtitle = document.getElementById("docked-subtitle");
         const dockedIcon = document.getElementById("docked-bar-icon");
+        const isConvergedOrFinal = (data.type === "converged" || data.type === "final_report" || isUpdate);
 
-        if (dockedBar) {
+        if (dockedBar && isConvergedOrFinal) {
             dockedBar.classList.remove("hidden");
             if (isUpdate && previousTitle) {
                 dockedBar.classList.add("pulse-highlight");
@@ -260,18 +275,22 @@ function handleServerResponse(data) {
                 
                 // Append in-chat notification card if chat pane doesn't have split open
                 appendInChatUpdateCard(newTitle, data.report.primary_fit);
+            } else if (data.report.mode === "exploratory" || data.is_exploratory) {
+                if (dockedIcon) dockedIcon.innerText = "🌱";
+                if (dockedTitle) dockedTitle.innerHTML = `<strong>Broad Horizon Discovery Dossier</strong>: ${escapeHtml(newTitle)}`;
+                if (dockedSubtitle) dockedSubtitle.innerText = "Top 3 Versatile Gateway Pathways • Maximum Optionality";
             } else {
                 if (dockedIcon) dockedIcon.innerText = "📄";
                 if (dockedTitle) dockedTitle.innerHTML = `<strong>Admissions Dossier Ready</strong>: ${escapeHtml(newTitle)}`;
-                if (dockedSubtitle) dockedSubtitle.innerText = "Click to view side-by-side recommendation & RIASEC profile";
+                if (dockedSubtitle) dockedSubtitle.innerText = "Top 3 Personalized Pathways • Click to view side-by-side";
             }
         }
     }
 
-    // Docked Dossier Banner directly above input box + Navbar Pill
+    // Docked Dossier Banner directly above input box + Navbar Pill (unhidden strictly upon convergence)
     const dockedBar = document.getElementById("docked-dossier-bar");
     const openDossierBtn = document.getElementById("open-dossier-btn");
-    if (data.can_complete) {
+    if (data.can_complete && (data.type === "converged" || data.type === "final_report")) {
         if (dockedBar) dockedBar.classList.remove("hidden");
         if (openDossierBtn) openDossierBtn.classList.remove("hidden");
     }
@@ -342,7 +361,7 @@ function injectArtifactCardInChat() {
             <span class="artifact-card-icon">📄</span>
             <div>
                 <div class="artifact-card-title">CareerSaathi Admissions Dossier Generated</div>
-                <div class="artifact-card-subtitle">Click to open Side-by-Side Artifact View</div>
+                <div class="artifact-card-subtitle">Top 3 Personalized Pathways • Click to open Side-by-Side Artifact View</div>
             </div>
         </div>
         <span class="artifact-card-action">View Dossier ↗</span>
@@ -393,36 +412,19 @@ function adjustTextareaHeight(el) {
 
 function updateJourneyRail(stageNum, stageName) {
     currentStageNum = stageNum;
-    
-    // Update Step items with checkmarks and active states
-    for (let i = 1; i <= 4; i++) {
-        const stepEl = document.getElementById(`step-${i}`);
-        if (!stepEl) continue;
-        const numEl = stepEl.querySelector(".step-num");
-        
-        stepEl.classList.remove("active", "completed");
-        if (i < stageNum) {
-            stepEl.classList.add("completed");
-            if (numEl) numEl.innerHTML = "✓";
-        } else if (i === stageNum) {
-            stepEl.classList.add("active");
-            if (numEl) numEl.innerHTML = `${i}`;
-        } else {
-            if (numEl) numEl.innerHTML = `${i}`;
-        }
-    }
 
-    // Update Stage Title in Chat Area
+    // Update Stage Title and Guide in Chat Area
     const titleEl = document.getElementById("stage-title-text");
     const guideEl = document.getElementById("stage-guide-text");
     if (titleEl && stageName) {
         titleEl.innerText = stageName;
     }
     if (guideEl) {
-        if (stageNum === 1) guideEl.innerText = "Tell us what subjects and real-world projects excite you.";
+        if (stageName === "Academic Background") guideEl.innerText = "Share your academic background and competitive exams to personalize your feasibility matrix.";
+        else if (stageNum === 1) guideEl.innerText = "Tell us what subjects and real-world projects excite you.";
         else if (stageNum === 2) guideEl.innerText = "Tell us how you naturally solve problems and handle chaos.";
         else if (stageNum === 3) guideEl.innerText = "Exploring your ideal work environment and collaboration style.";
-        else if (stageNum >= 4) guideEl.innerText = "Your personalized Navrachana University admissions recommendation.";
+        else if (stageNum >= 4) guideEl.innerText = "Your personalized admissions & career recommendation.";
     }
 }
 
@@ -557,21 +559,163 @@ function triggerRecalibration() {
 // 9. Dossier Artifact Rendering (Claude Wireframe 3)
 // ─────────────────────────────────────────────────────────────────────────────
 
+let currentActiveRecIndex = 0;
+
+function switchActiveRecommendation(index) {
+    if (!latestDossierReport) return;
+    const topThree = latestDossierReport.top_three || [
+        {
+            title: latestDossierReport.primary_recommendation,
+            degree: latestDossierReport.primary_degree_name || latestDossierReport.primary_recommendation,
+            stream: latestDossierReport.primary_stream,
+            fit_score: latestDossierReport.primary_fit,
+            exams: latestDossierReport.target_entrance_exams,
+            profile: latestDossierReport.career_profile
+        }
+    ];
+
+    if (!topThree[index]) return;
+    currentActiveRecIndex = index;
+    const activeDegree = topThree[index];
+
+    // 1. Update UI active states on recommendation cards
+    const heroCard = document.getElementById("dossier-hero-card");
+    const subCard1 = document.getElementById("sub-rec-card-1");
+    const subCard2 = document.getElementById("sub-rec-card-2");
+
+    const pill0 = document.getElementById("rec-active-pill-0");
+    const pill1 = document.getElementById("rec-active-pill-1");
+    const pill2 = document.getElementById("rec-active-pill-2");
+
+    if (heroCard) {
+        if (index === 0) {
+            heroCard.classList.add("rec-card-active");
+            if (pill0) pill0.innerText = "Active Roadmap ✓";
+        } else {
+            heroCard.classList.remove("rec-card-active");
+            if (pill0) pill0.innerText = "Click to view ↗";
+        }
+    }
+    if (subCard1) {
+        if (index === 1) {
+            subCard1.classList.add("active");
+            if (pill1) pill1.innerText = "Active Roadmap ✓";
+        } else {
+            subCard1.classList.remove("active");
+            if (pill1) pill1.innerText = "Switch view ↗";
+        }
+    }
+    if (subCard2) {
+        if (index === 2) {
+            subCard2.classList.add("active");
+            if (pill2) pill2.innerText = "Active Roadmap ✓";
+        } else {
+            subCard2.classList.remove("active");
+            if (pill2) pill2.innerText = "Switch view ↗";
+        }
+    }
+
+    // 2. Update Entrance Exams chips for active degree
+    const examsContainer = document.getElementById("entrance-exams-chips");
+    if (examsContainer && activeDegree.exams) {
+        examsContainer.innerHTML = "";
+        activeDegree.exams.forEach(ex => {
+            const chip = document.createElement("span");
+            chip.className = "exam-chip";
+            chip.innerText = ex;
+            examsContainer.appendChild(chip);
+        });
+    }
+
+    // 3. Update Curriculum focus
+    const profileDesc = document.getElementById("degree-profile-desc");
+    if (profileDesc && activeDegree.profile) {
+        profileDesc.innerText = activeDegree.profile;
+    }
+
+    // 4. Update Feasibility Matrix for this specific degree
+    if (latestDossierReport.feasibility_map && latestDossierReport.feasibility_map[index]) {
+        renderFeasibilityMatrix(latestDossierReport.feasibility_map[index]);
+    } else {
+        const stream = activeDegree.stream || latestDossierReport.primary_stream || "General";
+        const is10th = latestDossierReport.is_10th || (sessionState.level === "after_10th");
+        const matrix = generateLocalFeasibilityMatrix(activeDegree.degree, stream, sessionState.score_tier || "passion_first", is10th);
+        renderFeasibilityMatrix(matrix);
+    }
+}
+
 function renderDossierArtifact(report) {
     if (!report) return;
 
-    // 1. Hero Best Fit Card
+    const topThree = report.top_three || [
+        {
+            title: report.primary_recommendation,
+            degree: report.primary_degree_name || report.primary_recommendation,
+            stream: report.primary_stream,
+            fit_score: report.primary_fit,
+            exams: report.target_entrance_exams,
+            profile: report.career_profile
+        }
+    ];
+
+    // 1. Hero Best Fit Card (Recommendation #1)
     const heroTitle = document.getElementById("hero-degree-title");
     const heroMeta = document.getElementById("hero-degree-meta");
     const heroAlts = document.getElementById("hero-alternatives-text");
+    const heroBadge = document.getElementById("hero-card-badge");
 
-    if (heroTitle) heroTitle.innerText = report.primary_recommendation;
+    const r1 = topThree[0];
+    if (heroBadge) {
+        if (r1.rank_badge) {
+            heroBadge.innerText = `${r1.rank_badge} • ${r1.fit_score}% FIT`;
+        } else {
+            heroBadge.innerText = `🥇 #1 BEST FIT RECOMMENDATION • ${r1.fit_score}% FIT`;
+        }
+    }
+    if (heroTitle) heroTitle.innerText = r1.title || r1.degree;
     if (heroMeta) {
-        heroMeta.innerText = `Specialisation: ${report.career_profile || "Comprehensive Focus"}. Stream: ${report.primary_stream} (${report.primary_fit}% Fit).`;
+        heroMeta.innerText = `Academic Stream: ${r1.stream} • Fit Alignment: ${r1.fit_score}%`;
     }
-    if (heroAlts && report.alternatives) {
-        heroAlts.innerText = report.alternatives.join(", ");
+    if (heroAlts) {
+        const cleanProfile = (r1.profile || report.career_profile || "Comprehensive curriculum & problem solving").replace(/\.\s*$/, "");
+        heroAlts.innerText = cleanProfile;
     }
+
+    // 1b. Populate Sub-Recommendations (Recommendation #2 & #3)
+    if (topThree.length > 1) {
+        const r2 = topThree[1];
+        const b2 = document.getElementById("sub-rec-badge-1");
+        const t2 = document.getElementById("sub-rec-title-1");
+        const m2 = document.getElementById("sub-rec-meta-1");
+
+        if (b2) {
+            b2.innerText = r2.rank_badge ? `${r2.rank_badge} • ${r2.fit_score}% FIT` : `🥈 #2 ADJACENT SPECIALISATION • ${r2.fit_score}% FIT`;
+        }
+        if (t2) t2.innerText = r2.title || r2.degree;
+        if (m2) {
+            const cleanP2 = (r2.profile || "").replace(/\.\s*$/, "");
+            m2.innerText = `Stream: ${r2.stream} • ${cleanP2}`;
+        }
+    }
+
+    if (topThree.length > 2) {
+        const r3 = topThree[2];
+        const b3 = document.getElementById("sub-rec-badge-2");
+        const t3 = document.getElementById("sub-rec-title-2");
+        const m3 = document.getElementById("sub-rec-meta-2");
+
+        if (b3) {
+            b3.innerText = r3.rank_badge ? `${r3.rank_badge} • ${r3.fit_score}% FIT` : `🥉 #3 VERSATILE ALTERNATIVE • ${r3.fit_score}% FIT`;
+        }
+        if (t3) t3.innerText = r3.title || r3.degree;
+        if (m3) {
+            const cleanP3 = (r3.profile || "").replace(/\.\s*$/, "");
+            m3.innerText = `Stream: ${r3.stream} • ${cleanP3}`;
+        }
+    }
+
+    // Set active recommendation view to current index (defaults to 0)
+    switchActiveRecommendation(currentActiveRecIndex || 0);
 
     // 2. RIASEC Horizontal Bars
     const barsContainer = document.getElementById("riasec-horizontal-bars");
@@ -624,7 +768,218 @@ function renderDossierArtifact(report) {
             quotesContainer.appendChild(quoteDiv);
         });
     }
+
+    // 5. Cognitive Journey & Behavioral Breakdown
+    if (report.cognitive_journey) {
+        const cj = report.cognitive_journey;
+        const intEl = document.getElementById("journey-interests-text");
+        const thinkTitleEl = document.getElementById("journey-thinking-title");
+        const thinkDescEl = document.getElementById("journey-thinking-desc");
+        const strEl = document.getElementById("journey-strengths-text");
+        const alignEl = document.getElementById("journey-alignment-text");
+
+        if (intEl && cj.interests_summary) intEl.innerText = cj.interests_summary;
+        if (thinkTitleEl && cj.thinking_style_title) thinkTitleEl.innerText = cj.thinking_style_title;
+        if (thinkDescEl && cj.thinking_style_desc) thinkDescEl.innerText = cj.thinking_style_desc;
+        if (strEl && cj.strengths_summary) strEl.innerText = cj.strengths_summary;
+        if (alignEl && cj.alignment_synthesis) alignEl.innerText = cj.alignment_synthesis;
+    }
+
+    // 6. Empathetic Realism: Academic Feasibility & Smart Pathways
+    if (report.academic_feasibility) {
+        renderFeasibilityMatrix(report.academic_feasibility);
+    }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 9b. Empathetic Realism Matrix Rendering & Interactive Tier Exploration
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderFeasibilityMatrix(feasibility) {
+    if (!feasibility) return;
+
+    const badgeEl = document.getElementById("feasibility-tier-badge");
+    const realityEl = document.getElementById("feasibility-reality-text");
+    const gatewaysContainer = document.getElementById("feasibility-gateways-list");
+    const stratEl = document.getElementById("feasibility-strategy-text");
+
+    if (badgeEl && feasibility.tier_badge) {
+        badgeEl.innerText = feasibility.tier_badge;
+    }
+    if (realityEl && feasibility.reality_check) {
+        realityEl.innerText = feasibility.reality_check;
+    }
+    if (gatewaysContainer && feasibility.smart_pathways) {
+        gatewaysContainer.innerHTML = "";
+        feasibility.smart_pathways.forEach(p => {
+            const pDiv = document.createElement("div");
+            pDiv.className = "gateway-item-card";
+            pDiv.innerHTML = `
+                <div class="gateway-title">${escapeHtml(p.title)}</div>
+                <div class="gateway-desc">${escapeHtml(p.desc)}</div>
+            `;
+            gatewaysContainer.appendChild(pDiv);
+        });
+    }
+    if (stratEl && feasibility.recommended_strategy) {
+        stratEl.innerText = feasibility.recommended_strategy;
+    }
+
+    // Sync active tier button
+    const activeKey = feasibility.tier_key || "passion_first";
+    document.querySelectorAll(".tier-btn").forEach(btn => {
+        if (btn.getAttribute("data-tier") === activeKey) {
+            btn.classList.add("active");
+        } else {
+            btn.classList.remove("active");
+        }
+    });
+}
+
+function applyScoreTier(tierKey) {
+    sessionState.score_tier = tierKey;
+
+    // Highlight button immediately
+    document.querySelectorAll(".tier-btn").forEach(btn => {
+        if (btn.getAttribute("data-tier") === tierKey) {
+            btn.classList.add("active");
+        } else {
+            btn.classList.remove("active");
+        }
+    });
+
+    if (!latestDossierReport) return;
+
+    const topThree = latestDossierReport.top_three || [
+        {
+            degree: latestDossierReport.primary_degree_name || latestDossierReport.primary_recommendation,
+            stream: latestDossierReport.primary_stream || "General"
+        }
+    ];
+    const activeDegObj = topThree[currentActiveRecIndex || 0] || topThree[0];
+
+    const deg = activeDegObj.degree || "Degree";
+    const stream = activeDegObj.stream || "General";
+    const is10th = latestDossierReport.is_10th || (sessionState.level === "after_10th");
+
+    const matrix = generateLocalFeasibilityMatrix(deg, stream, tierKey, is10th);
+    renderFeasibilityMatrix(matrix);
+}
+
+function generateLocalFeasibilityMatrix(degName, stream, tierKey, is10th) {
+    const tierBadges = {
+        "high": "Above 85% / High Percentile (Tier-1 Target)",
+        "competitive": "70% – 85% / Competitive Range",
+        "moderate": "55% – 70% / Moderate (Focus on Smart Pathways)",
+        "foundational": "Under 55% / Foundational Band",
+        "passion_first": "Aptitude-First Assessment (Unrestricted)"
+    };
+
+    let reality = "";
+    let pathways = [];
+    let strategy = "";
+
+    if (stream.includes("PCM") || stream.includes("Science (PCM)")) {
+        if (tierKey === "high") {
+            reality = `For ${degName}, premier institutions (IITs, NITs, BITS) require top 2% national rank in JEE Mains or BITSAT (>98.5 percentile). Your score profile indicates strong foundational capability to compete at this level.`;
+            pathways = [
+                { title: "Tier-1 National Roadmaps", desc: "Focus rigorously on JEE Advanced and BITSAT with timed full-syllabus mock tests." },
+                { title: "Premier State Engineering Quota", desc: "Target top government state colleges via State CET as a high-ROI safety net." }
+            ];
+            strategy = "Pursue Tier-1 JEE/BITSAT preparation while keeping premier state university CET counseling as your secure backup.";
+        } else if (tierKey === "competitive") {
+            reality = `Tier-1 IIT/NIT seats for ${degName} remain competitive, but reputable state government engineering colleges and premier private universities (via CET, COMEDK, VITEEE) are well within your reach.`;
+            pathways = [
+                { title: "State Engineering Merit Seats", desc: "Top state engineering colleges offer identical campus placements with major tech firms at a fraction of Tier-1 stress." },
+                { title: "Specialized Emerging Branches", desc: "Branches like AI/Data Science, Mechatronics, or IoT often have accessible cutoffs with equal placement prospects." }
+            ];
+            strategy = "Target State CET and university-specific entrance exams where your score tier provides strong seat security.";
+        } else if (tierKey === "moderate" || tierKey === "foundational") {
+            reality = `National entrance exams like JEE Mains feature intense competition (>14 lakh aspirants). Rushing into high-cost multi-year coaching can lead to academic burnout. Modern technology careers are strictly skill-driven, not degree-monopolized.`;
+            pathways = [
+                { title: "Smart Route A: BCA (Bachelor of Computer Applications)", desc: "Admits directly on 50%+ 12th board aggregate with ZERO JEE stress. You learn programming, databases, and app dev from Day 1. Major tech firms (TCS, Infosys, Deloitte, startups) hire directly, or you can pursue MCA for complete parity with B.Tech CSE." },
+                { title: "Smart Route B: Polytechnic Diploma ➔ B.Tech Lateral Entry", desc: "Hands-on 3-year technical diploma admitting directly into the 2nd year of B.Tech engineering, completely bypassing 11th/12th board stress." },
+                { title: "Smart Route C: University Holistic Entrances (CUET UG)", desc: "Private and state universities admitting through CUET UG or aptitude exams evaluate problem-solving intuition rather than brutal negative-marking JEE ranks." }
+            ];
+            strategy = "Avoid high-stress repeat years for JEE. Opt for direct-entry BCA or lateral diploma routes where you begin software coding immediately and build an industry portfolio.";
+        } else {
+            reality = `Admission to ${degName} ranges from Tier-1 competitive exams (JEE/BITSAT) to flexible aptitude-based university entrances (CUET UG). Minimum eligibility typically requires 50-60% aggregate in PCM.`;
+            pathways = [
+                { title: "Dual Pathway Strategy", desc: "Balance high-reach national entrance tests (JEE) with flexible private/state university entrance tests." },
+                { title: "Applied BCA / B.Sc IT Alternative", desc: "Direct software coding pathway requiring only passing marks in board examinations." }
+            ];
+            strategy = "Evaluate whether you thrive in high-pressure mathematical exam speed (B.Tech) or prefer project-driven software development (BCA).";
+        }
+    } else if (stream.includes("PCB") || stream.includes("Science (PCB)")) {
+        if (tierKey === "high") {
+            reality = `Government medical seats (MBBS) require 620-680+ marks in NEET (>99th percentile). Your academic profile gives you the foundational stamina needed for top medical ranks.`;
+            pathways = [
+                { title: "All-India & State NEET Counseling", desc: "Focus on high-speed NCERT biology and chemistry revision to secure government medical colleges." },
+                { title: "Top Biotechnology Research Institutes", desc: "Target IISERs, NISER, and central universities for high-impact biological research." }
+            ];
+            strategy = "Aim for NEET government quota while keeping BDS and B.Sc Biotechnology in central universities as contingencies.";
+        } else {
+            reality = `Government MBBS seats face extreme scarcity (>24 lakh applicants for ~55,000 government seats). Taking 2-3 dropper years for NEET carries immense emotional exhaustion with no guaranteed outcome.`;
+            pathways = [
+                { title: "Smart Route A: B.Sc in Biotechnology / Bioinformatics", desc: "The fastest-growing segment of healthcare (14% CAGR in genomics and precision medicine). Admits via 12th marks or CUET with zero NEET gatekeeping." },
+                { title: "Smart Route B: Allied Health Sciences (Radiology, Lab Tech, Anesthesia)", desc: "Hospital operations depend on diagnostic technologists. 100% campus placement demand with immediate career security." },
+                { title: "Smart Route C: B.Pharm (Bachelor of Pharmacy)", desc: "Direct admission via board scores or State CET. Opens high-paying pathways into drug discovery and clinical trials." }
+            ];
+            strategy = "Do not stake your future purely on repeated NEET attempts. Explore Allied Health Sciences, B.Pharm, or B.Sc Biotechnology where biological passion translates into immediate career security.";
+        }
+    } else if (stream.includes("Commerce")) {
+        if (tierKey === "high") {
+            reality = `Top commerce colleges (SRCC, Hindu College, St. Xavier's) require 98%+ in CUET UG or high board marks. Your academic standing positions you well for elite Tier-1 institutions.`;
+            pathways = [
+                { title: "CUET Top-Tier B.Com (Hons)", desc: "Target North Campus DU and premier central universities with targeted CUET subject prep." },
+                { title: "Professional Dual-Track (CA / CFA)", desc: "Register for ICAI CA Foundation or begin CFA Level 1 alongside your undergraduate degree." }
+            ];
+            strategy = "Aim for top CUET commerce programs while beginning foundational preparation for CA or CFA.";
+        } else {
+            reality = `While 99% board cutoffs for elite colleges make traditional admissions challenging, modern finance and corporate business prioritize financial modeling skills, Excel/SQL competence, and professional certifications over college brand.`;
+            pathways = [
+                { title: "Smart Route A: BBA / BMS via University Aptitude", desc: "Management programs admitted via CUET or private university entrance tests. Focuses on entrepreneurship, marketing, and corporate internships." },
+                { title: "Smart Route B: B.Com + Global Certifications (ACCA / US CMA)", desc: "International credentials like ACCA or CMA evaluate practical financial competence directly, granting global placement eligibility regardless of college tier." },
+                { title: "Smart Route C: B.Voc in Banking & Financial Services (BFSI)", desc: "Vocational degree with 60% industry apprentice training and direct tie-ups with leading private banks." }
+            ];
+            strategy = "Enroll in a reputable BBA or B.Com program and immediately layer on professional certifications (CMA, ACCA, or Financial Modeling) to surpass college cutoff limitations.";
+        }
+    } else {
+        reality = `In Design, Media, UI/UX, and Liberal Arts, academic board percentages account for less than 25% of admissions decisions! Top design schools (NID, UCEED, private design institutes) base selection 75%+ on visual aptitude, portfolio showcases, and creative intuition.`;
+        pathways = [
+            { title: "Smart Route A: Creative Portfolio & Aptitude Entrances (UCEED, NID DAT)", desc: "A student with a 62% board score and a compelling design portfolio will consistently win admission over a 95% scorer with no creative work." },
+            { title: "Smart Route B: 5-Year Integrated Law (BA LLB / BBA LLB)", desc: "Admissions through CLAT or State Law CETs measure logical reasoning and legal aptitude, with board marks serving merely as a basic 45-50% eligibility cutoff." },
+            { title: "Smart Route C: Digital Media & UI/UX Product Design Bootcamps", desc: "Direct project-based admissions into modern digital design academies, leading directly to tech product design roles." }
+        ];
+        strategy = "Focus your energy on building a compelling portfolio (Figma, sketches, writing samples) and practicing design/law aptitude tests. Your board percentage is only a basic eligibility check.";
+    }
+
+    if (is10th && (tierKey === "moderate" || tierKey === "foundational")) {
+        reality = `Choosing high-stress 11th Science (PCM) under peer pressure often leads to heavy tuition burdens and high failure rates. If you love tech or computers, you do NOT have to struggle through 11th Chemistry and Physics!`;
+        pathways.unshift({
+            title: "Empowering 10th Path: Polytechnic Diploma in Computer Engineering",
+            desc: "Begin software and computer systems immediately after 10th. After 3 years, you enter B.Tech 2nd year directly via lateral entry, bypassing 11th/12th board pressure completely!"
+        });
+        pathways.splice(1, 0, {
+            title: "Empowering 10th Path: Commerce with Informatics Practices",
+            desc: "Allows direct admission into BCA (Bachelor of Computer Applications) in college, giving you a complete software engineering career without high-stress PCM."
+        });
+    }
+
+    let badgeLabel = tierBadges[tierKey] || "Aptitude-First Assessment";
+    if (sessionState.score_raw && tierKey !== "passion_first") {
+        badgeLabel += ` • Student Score: ${sessionState.score_raw}`;
+    }
+
+    return {
+        tier_badge: badgeLabel,
+        tier_key: tierKey,
+        reality_check: reality,
+        smart_pathways: pathways,
+        recommended_strategy: strategy
+    };
+}
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 10. AI Reasoning & Telemetry Rendering (XAI)
@@ -808,7 +1163,7 @@ function printDossier() {
     const degName = (latestDossierReport && latestDossierReport.primary_degree_name)
         ? latestDossierReport.primary_degree_name.replace(/[^a-zA-Z0-9]/g, "_")
         : "Admissions_Dossier";
-    document.title = `Navrachana_University_CareerSaathi_${degName}`;
+    document.title = `CareerSaathi_Admissions_Dossier_${degName}`;
     
     window.print();
     

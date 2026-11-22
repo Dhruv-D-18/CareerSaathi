@@ -5,13 +5,11 @@
 [![Sentence-BERT](https://img.shields.io/badge/Sentence--BERT-all--MiniLM--L6--v2-orange.svg?style=flat)](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
 [![spaCy](https://img.shields.io/badge/spaCy-en__core__web__sm-09A3D5?style=flat&logo=spacy)](https://spacy.io/)
 [![Ollama](https://img.shields.io/badge/Local_SLM-Gemma--2:2B-black?style=flat&logo=ollama)](https://ollama.com/)
-[![Institution](https://img.shields.io/badge/Navrachana_University-Vadodara-a81d24.svg?style=flat)](https://nuv.ac.in/)
+[![Architecture](https://img.shields.io/badge/Architecture-Hybrid_SLM_+_Bayesian-a81d24.svg?style=flat)](https://github.com/Dhruv-D-18/CareerSaathi)
 
 > **Cognitive AI & Natural Language Processing Career Advisory System**  
-> **Student Name:** Dhruv Dharikar  
-> **Roll Number:** 23000527  
-> **Faculty Guide:** Dr. Jaideepsinh Raulji  
-> **Department:** Computer Science & Engineering, School of Engineering & Technology, Navrachana University, Vadodara  
+> **Author:** Dhruv Dharikar  
+> **Domain:** Empirical Psychometrics, Dense Semantic Spaces & Explainable AI (XAI)  
 
 ---
 
@@ -19,7 +17,7 @@
 
 **CareerSaathi** is an explainable, mixed-initiative career counselling and admissions advisory agent designed for Indian high school students navigating critical academic crossroads (**After 10th Stream Selection** and **After 12th Undergraduate Degree Discovery**).
 
-Departing from rigid 50-question psychometric questionnaires, CareerSaathi engages students in natural, empathetic dialogue grounded in realistic life scenarios. It models cognitive preferences in continuous space, compiles a live side-by-side **Admissions Dossier Artifact** (inspired by Claude Artifacts), provides **full NLP Explainability (XAI)**, and prints official, university-branded PDF advisories in Navrachana Crimson Red (`#a81d24`).
+Departing from rigid 50-question psychometric questionnaires, CareerSaathi engages students in natural, empathetic dialogue grounded in realistic life scenarios. It models cognitive preferences in continuous space, compiles a live side-by-side **Admissions Dossier Artifact** (inspired by Claude Artifacts), provides **full NLP Explainability (XAI)**, and prints official student advisories in Crimson Red (`#a81d24`).
 
 ---
 

@@ -18,7 +18,7 @@ def open_browser():
 if __name__ == "__main__":
     print("=" * 80)
     print("  CAREERSAATHI: COGNITIVE ADMISSIONS & CAREER ADVISORY SUITE")
-    print("  Navrachana University • Department of Computer Science & Engineering")
+    print("  Empirical NLP & Explainable AI (XAI) • 36 Comprehensive Academic Pathways")
     print("=" * 80)
     
     # Add backend directory to sys.path

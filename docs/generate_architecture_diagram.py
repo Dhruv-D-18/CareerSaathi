@@ -139,7 +139,7 @@ draw_arrow(67, 59.5, 71, 28, '#eab308', lw=2.2)      # Stage 2 S_final -> Indian
 draw_arrow(71, 28, 29, 28, '#34d399', lw=2.5)        # Indian Ontology -> Client Telemetry
 
 # Save figure in docs and brain
-out_path_1 = r'D:\AuraPath-AI-main\docs\system_architecture_pipeline.png'
+out_path_1 = os.path.join(os.path.dirname(__file__), 'system_architecture_pipeline.png')
 out_path_2 = r'C:\Users\dhruv\.gemini\antigravity\brain\37ff4593-e160-48e3-aea1-df1ce3769575\system_architecture_pipeline.png'
 
 plt.subplots_adjust(left=0.01, right=0.99, top=0.98, bottom=0.02)

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CareerSaathi | Navrachana University Cognitive Admissions & Career Advisory</title>
+    <title>CareerSaathi | Cognitive Admissions & Career Advisory</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,12 +49,6 @@
                     <button class="btn-start-pathway" onclick="startAssessment('after_12th')">Start talking</button>
                 </div>
             </div>
-
-            <!-- Institutional Trust & Academic Footnote -->
-            <footer class="landing-footer">
-                <p class="framework-note">Based on Holland's RIASEC Psychometric Framework & Dense S-BERT NLP. Local On-Device SLM (Gemma 2 2B on RTX 4060). Your answers stay 100% private in this session.</p>
-                <p class="academic-credit">Department of Computer Science & Engineering • Navrachana University</p>
-            </footer>
         </main>
     </div>
 
@@ -87,47 +81,12 @@
         <!-- Workspace Dual-Pane Layout -->
         <div class="workspace-body" id="workspace-body">
             
-            <!-- ── LEFT JOURNEY RAIL (Matching Claude Wireframe 2) ──────────── -->
+            <!-- ── LEFT TELEMETRY RAIL ──────────────────────────────────────── -->
             <aside class="journey-rail" id="journey-rail">
                 <div class="rail-header">
                     <span class="rail-brand">CareerSaathi</span>
-                    <span class="rail-sub">Guided Path</span>
+                    <span class="rail-sub">Cognitive AI</span>
                 </div>
-
-                <div class="rail-section-title">YOUR JOURNEY</div>
-                
-                <ol class="journey-steps-list">
-                    <li class="journey-step active" id="step-1">
-                        <span class="step-num">1</span>
-                        <div class="step-content">
-                            <span class="step-name">Interests</span>
-                            <span class="step-desc">Curiosities & passions</span>
-                        </div>
-                    </li>
-                    <li class="journey-step" id="step-2">
-                        <span class="step-num">2</span>
-                        <div class="step-content">
-                            <span class="step-name">Thinking style</span>
-                            <span class="step-desc">Problem-solving instinct</span>
-                        </div>
-                    </li>
-                    <li class="journey-step" id="step-3">
-                        <span class="step-num">3</span>
-                        <div class="step-content">
-                            <span class="step-name">Strengths</span>
-                            <span class="step-desc">Environment & collaboration</span>
-                        </div>
-                    </li>
-                    <li class="journey-step" id="step-4">
-                        <span class="step-num">4</span>
-                        <div class="step-content">
-                            <span class="step-name">Your recommendation</span>
-                            <span class="step-desc">Personalized Dossier</span>
-                        </div>
-                    </li>
-                </ol>
-
-                <p class="rail-footnote">Stages adapt dynamically to your answers, so the order may evolve.</p>
 
                 <!-- Student Mini-Affinity Real-Time Widget -->
                 <div class="rail-mini-telemetry">
@@ -175,7 +134,7 @@
 
                 <!-- Loading Bubble -->
                 <div class="chat-loading-bubble hidden" id="chat-loading">
-                    <span class="loading-label">CareerSaathi is thinking</span>
+                    <span class="loading-label"><strong class="loading-brand">CareerSaathi</strong> is thinking</span>
                     <div class="typing-dots">
                         <span></span><span></span><span></span>
                     </div>
@@ -249,8 +208,8 @@
                         <!-- Official Print Header (Only visible in PDF / Print) -->
                         <div class="print-report-header">
                             <div class="print-univ-col">
-                                <h1 class="print-univ-title">NAVRACHANA UNIVERSITY, VADODARA</h1>
-                                <p class="print-univ-sub">CareerSaathi™ AI Career & Admissions Advisory Dossier</p>
+                                <h1 class="print-univ-title">CAREERSAATHI ADMISSIONS & CAREER ADVISORY</h1>
+                                <p class="print-univ-sub">CareerSaathi™ Cognitive Career & Stream Advisory Dossier</p>
                             </div>
                             <div class="print-doc-meta">
                                 <span class="print-badge">OFFICIAL ADMISSIONS DOSSIER</span>
@@ -258,18 +217,47 @@
                             </div>
                         </div>
 
-                        <!-- Hero Best Fit Card (Navrachana Crimson) -->
-                        <div class="dossier-hero-card" id="dossier-hero-card">
-                            <div class="hero-card-badge">BEST FIT RECOMMENDATION</div>
-                            <h2 class="hero-degree-title" id="hero-degree-title">B.Tech in Computer Science & AI</h2>
-                            <p class="hero-degree-meta" id="hero-degree-meta">Specialisation: Software Engineering & Cloud. Stream: Science (PCM).</p>
-                            <div class="hero-alternatives-row">
-                                <span class="alt-label">Also worth exploring:</span>
-                                <span class="alt-degrees-list" id="hero-alternatives-text">B.Sc Applied Mathematics, B.Des UI/UX, B.Tech Robotics</span>
+                        <!-- Top 3 Recommendations Showcase -->
+                        <div class="top-three-showcase" id="top-three-showcase">
+                            <!-- Hero Recommendation #1 -->
+                            <div class="dossier-hero-card" id="dossier-hero-card" onclick="switchActiveRecommendation(0)" style="cursor: pointer;" title="Click to view full roadmap for this pathway">
+                                <div class="hero-top-row">
+                                    <span class="hero-card-badge" id="hero-card-badge">🥇 #1 BEST FIT RECOMMENDATION • 94% FIT</span>
+                                    <span class="rec-active-pill" id="rec-active-pill-0">Active Roadmap ✓</span>
+                                </div>
+                                <h2 class="hero-degree-title" id="hero-degree-title">B.Tech in Computer Science & AI</h2>
+                                <p class="hero-degree-meta" id="hero-degree-meta">Specialisation: Software Engineering & Cloud. Stream: Science (PCM).</p>
+                                <div class="hero-alternatives-row">
+                                    <span class="alt-label">Key Focus:</span>
+                                    <span class="alt-degrees-list" id="hero-alternatives-text">Computational logic, software systems, and data architecture.</span>
+                                </div>
+                            </div>
+
+                            <!-- Recommendations Sub-Grid (Option 2 & Option 3) -->
+                            <div class="recommendations-sub-grid" id="recommendations-sub-grid">
+                                <!-- Card 2: Adjacent Specialisation -->
+                                <div class="sub-rec-card" id="sub-rec-card-1" onclick="switchActiveRecommendation(1)" title="Click to switch roadmap view to this option">
+                                    <div class="sub-rec-top">
+                                        <span class="sub-rec-badge badge-silver" id="sub-rec-badge-1">🥈 #2 ADJACENT SPECIALISATION • 86% FIT</span>
+                                        <span class="sub-rec-status" id="rec-active-pill-1">Switch view ↗</span>
+                                    </div>
+                                    <h4 class="sub-rec-title" id="sub-rec-title-1">Degree Title 2</h4>
+                                    <p class="sub-rec-meta" id="sub-rec-meta-1">Stream info & profile</p>
+                                </div>
+
+                                <!-- Card 3: Versatile Alternative -->
+                                <div class="sub-rec-card" id="sub-rec-card-2" onclick="switchActiveRecommendation(2)" title="Click to switch roadmap view to this option">
+                                    <div class="sub-rec-top">
+                                        <span class="sub-rec-badge badge-bronze" id="sub-rec-badge-2">🥉 #3 VERSATILE ALTERNATIVE • 78% FIT</span>
+                                        <span class="sub-rec-status" id="rec-active-pill-2">Switch view ↗</span>
+                                    </div>
+                                    <h4 class="sub-rec-title" id="sub-rec-title-2">Degree Title 3</h4>
+                                    <p class="sub-rec-meta" id="sub-rec-meta-2">Stream info & profile</p>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- 2-Column Sub-Grid: RIASEC Bars + Fit Summary -->
+                        <!-- 2-Column Sub-Grid: RIASEC Bars + Entrance Roadmap -->
                         <div class="dossier-sub-grid">
                             <!-- RIASEC Horizontal Bars -->
                             <div class="dossier-card riasec-profile-card">
@@ -287,13 +275,97 @@
                                 <p class="card-caption">Target examinations for admission into top universities</p>
                                 <div class="entrance-chips-wrap" id="entrance-exams-chips">
                                     <span class="exam-chip">JEE Mains</span>
-                                    <span class="exam-chip">GUJCET</span>
-                                    <span class="exam-chip">NUV-DET (Navrachana)</span>
+                                    <span class="exam-chip">State CET / GUJCET</span>
+                                    <span class="exam-chip">CUET UG</span>
                                 </div>
                                 <div class="degree-profile-box" id="degree-profile-box">
                                     <strong>Curriculum Focus:</strong>
                                     <p id="degree-profile-desc">Algorithmic thinking, cloud architecture, and machine learning systems.</p>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- ── SECTION 1: COGNITIVE JOURNEY & PSYCHOLOGICAL ALIGNMENT ── -->
+                        <div class="dossier-card cognitive-journey-card">
+                            <h3 class="card-heading-serif">Cognitive Journey & Behavioral Breakdown</h3>
+                            <p class="card-caption">Detailed psychological mapping across your interests, thinking style, and workplace strengths</p>
+                            
+                            <div class="cognitive-journey-grid">
+                                <div class="journey-item-box">
+                                    <div class="journey-item-header">
+                                        <span class="journey-badge-num">1</span>
+                                        <strong>Core Interests & Passions</strong>
+                                    </div>
+                                    <p id="journey-interests-text">Computational logic, software systems, and data architecture.</p>
+                                </div>
+                                <div class="journey-item-box">
+                                    <div class="journey-item-header">
+                                        <span class="journey-badge-num">2</span>
+                                        <strong id="journey-thinking-title">Systematic & Analytical Instinct</strong>
+                                    </div>
+                                    <p id="journey-thinking-desc">You deconstruct dilemmas into clear, verifiable steps, using first-principles reasoning over guesswork.</p>
+                                </div>
+                                <div class="journey-item-box">
+                                    <div class="journey-item-header">
+                                        <span class="journey-badge-num">3</span>
+                                        <strong>Workplace Strengths & Collaboration</strong>
+                                    </div>
+                                    <p id="journey-strengths-text">Deep solo cognitive flow, algorithmic debugging, and structured problem formulation.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="journey-alignment-callout">
+                                <strong>Curricular & Industry Alignment:</strong>
+                                <p id="journey-alignment-text">Your instinctive analytical thinking style directly fits the rigorous problem-solving expected in this discipline.</p>
+                            </div>
+                        </div>
+
+                        <!-- ── SECTION 2: EMPATHETIC REALISM: ACADEMIC FEASIBILITY & SMART PATHWAYS ── -->
+                        <div class="dossier-card feasibility-matrix-card">
+                            <div class="feasibility-card-top">
+                                <div>
+                                    <h3 class="card-heading-serif">Academic Feasibility & Smart Pathway Advisory</h3>
+                                    <p class="card-caption">Empathetic realism: Honest cutoff awareness paired with high-upside alternative routes</p>
+                                </div>
+                                <span class="feasibility-tier-badge" id="feasibility-tier-badge">Aptitude-First Assessment</span>
+                            </div>
+
+                            <!-- Interactive Score Tier Filter -->
+                            <div class="score-tier-filter-row">
+                                <span class="filter-label">Explore Score Scenario:</span>
+                                <div class="tier-buttons-group">
+                                    <button type="button" class="tier-btn" data-tier="high" onclick="applyScoreTier('high')">⭐ 85%+ High Target</button>
+                                    <button type="button" class="tier-btn" data-tier="competitive" onclick="applyScoreTier('competitive')">🎯 70% – 85% Competitive</button>
+                                    <button type="button" class="tier-btn" data-tier="moderate" onclick="applyScoreTier('moderate')">💡 55% – 70% Smart Pathways</button>
+                                    <button type="button" class="tier-btn" data-tier="foundational" onclick="applyScoreTier('foundational')">🌱 Under 55%</button>
+                                    <button type="button" class="tier-btn active" data-tier="passion_first" onclick="applyScoreTier('passion_first')">🔓 Passion-First</button>
+                                </div>
+                            </div>
+
+                            <!-- Honest Reality Check (No Sugarcoating) -->
+                            <div class="reality-check-panel">
+                                <div class="reality-header">
+                                    <span class="reality-icon">📋</span>
+                                    <strong>Cutoff Reality Check (No Sugarcoating)</strong>
+                                </div>
+                                <p id="feasibility-reality-text">Entrance cutoffs for premier Tier-1 government institutions require top national percentiles. Evaluating options with balanced perspective prevents high-stress burnout.</p>
+                            </div>
+
+                            <!-- Smart Gateways (No Demotivation) -->
+                            <div class="smart-gateways-panel">
+                                <div class="gateways-header">
+                                    <span class="gateways-icon">🚀</span>
+                                    <strong>Smart Alternative Gateways & Backdoor Entries (No Demotivation)</strong>
+                                </div>
+                                <div class="gateways-list" id="feasibility-gateways-list">
+                                    <!-- Dynamic smart pathways injected here -->
+                                </div>
+                            </div>
+
+                            <!-- Actionable Strategy Callout -->
+                            <div class="strategy-summary-bar">
+                                <strong>Advisory Strategy:</strong>
+                                <span id="feasibility-strategy-text">Target premier entrance tests while securing high-yield alternative degrees with direct industry demand.</span>
                             </div>
                         </div>
 

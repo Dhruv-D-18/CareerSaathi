@@ -7,7 +7,7 @@ All test cases in this document have been **pre-tested and verified** against th
 
 ## How to Start Your Testing Session
 
-1. Open your terminal in `D:\AuraPath-AI-main`.
+1. Open your terminal in the project directory (`CareerSaathi`).
 2. Run the server launcher:
    ```powershell
    python run.py

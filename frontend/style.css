@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   CareerSaathi: Cognitive Career & Admissions Advisory Suite (Navrachana University)
-   Clean White & University Crimson Red Design System
+   CareerSaathi: Cognitive Career & Admissions Advisory Suite
+   Clean White & Brand Crimson Red Design System
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
@@ -448,7 +448,7 @@ body {
    LEFT JOURNEY RAIL (Claude Wireframe 2)
    ───────────────────────────────────────────────────────────────────────────── */
 .journey-rail {
-    width: 250px;
+    width: 260px;
     background-color: var(--bg-pure-white);
     border-right: 1px solid var(--border-light);
     padding: 24px 20px;
@@ -477,113 +477,19 @@ body {
     color: var(--text-muted);
 }
 
-.rail-section-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    margin-bottom: 16px;
-}
-
-.journey-steps-list {
-    list-style: none;
-    position: relative;
-    margin-bottom: 24px;
-}
-
-.journey-steps-list::before {
-    content: '';
-    position: absolute;
-    top: 14px;
-    bottom: 20px;
-    left: 13px;
-    width: 2px;
-    background-color: var(--border-light);
-    z-index: 1;
-}
-
-.journey-step {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    margin-bottom: 20px;
-    position: relative;
-    z-index: 2;
-}
-
-.step-num {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background-color: var(--bg-pure-white);
-    border: 2px solid var(--border-light);
-    color: var(--text-muted);
-    font-size: 12px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: var(--transition);
-}
-
-.journey-step.active .step-num {
-    background-color: var(--univ-crimson);
-    border-color: var(--univ-crimson);
-    color: #ffffff;
-    box-shadow: 0 0 0 3px var(--univ-crimson-light);
-}
-
-.journey-step.completed .step-num {
-    background-color: var(--univ-crimson);
-    border-color: var(--univ-crimson);
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.step-content {
-    display: flex;
-    flex-direction: column;
-}
-
-.step-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.journey-step.active .step-name {
-    color: var(--univ-crimson);
-}
-
-.step-desc {
-    font-size: 11px;
-    color: var(--text-muted);
-}
-
-.rail-footnote {
-    font-size: 11px;
-    color: var(--text-muted);
-    line-height: 1.5;
-    margin-bottom: 28px;
-}
-
-/* Student Mini Affinity Widget in Journey Rail */
+/* Student Mini Affinity Widget in Telemetry Rail */
 .rail-mini-telemetry {
-    margin-top: auto;
     background-color: var(--bg-muted);
     border: 1px solid var(--border-light);
     border-radius: var(--radius-md);
-    padding: 14px;
+    padding: 16px 14px;
 }
 
 .mini-telemetry-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .mini-title {
@@ -606,7 +512,7 @@ body {
 .stream-mini-bars {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .mini-stream-row {
@@ -616,9 +522,9 @@ body {
 }
 
 .mini-stream-label {
-    font-size: 10px;
+    font-size: 11px;
     color: var(--text-secondary);
-    width: 76px;
+    width: 86px;
     flex-shrink: 0;
     white-space: nowrap;
     overflow: hidden;
@@ -646,10 +552,10 @@ body {
 .arts-bar { background-color: #9333ea; }
 
 .mini-stream-val {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--text-muted);
-    width: 26px;
+    width: 28px;
     text-align: right;
 }
 
@@ -692,6 +598,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    scrollbar-gutter: stable;
 }
 
 /* Chat Bubbles */
@@ -796,8 +703,15 @@ body {
     border: 1px solid var(--border-light);
     padding: 10px 16px;
     border-radius: var(--radius-full);
-    font-size: 12px;
-    color: var(--text-muted);
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.loading-label strong,
+.loading-label .loading-brand,
+.loading-brand {
+    color: var(--univ-crimson) !important;
+    font-weight: 700 !important;
 }
 
 .typing-dots {
@@ -1175,6 +1089,11 @@ body {
     box-shadow: var(--shadow-md);
     position: relative;
     overflow: hidden;
+    transition: var(--transition);
+}
+
+.dossier-hero-card.rec-card-active {
+    box-shadow: 0 0 0 2.5px rgba(255, 255, 255, 0.9), 0 8px 24px rgba(168, 29, 36, 0.35);
 }
 
 .dossier-hero-card::after {
@@ -1188,13 +1107,38 @@ body {
     border-radius: 50%;
 }
 
+.top-three-showcase {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.hero-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.rec-active-pill {
+    background-color: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    letter-spacing: 0.02em;
+}
+
 .hero-card-badge {
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     opacity: 0.9;
-    margin-bottom: 8px;
+    margin-bottom: 0;
 }
 
 .hero-degree-title {
@@ -1228,6 +1172,86 @@ body {
 
 .alt-degrees-list {
     font-weight: 600;
+}
+
+/* Recommendations Sub Grid (Option 2 & Option 3) */
+.recommendations-sub-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.sub-rec-card {
+    background-color: var(--bg-pure-white);
+    border: 1.5px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: var(--shadow-sm);
+}
+
+.sub-rec-card:hover {
+    border-color: var(--univ-crimson);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.sub-rec-card.active {
+    border-color: var(--univ-crimson);
+    background-color: #fff8f8;
+    box-shadow: 0 0 0 1.5px var(--univ-crimson);
+}
+
+.sub-rec-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.sub-rec-badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+    letter-spacing: 0.02em;
+}
+
+.badge-silver {
+    background-color: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+}
+
+.badge-bronze {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+.sub-rec-status {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--univ-crimson);
+}
+
+.sub-rec-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    line-height: 1.35;
+}
+
+.sub-rec-meta {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin: 0;
 }
 
 /* Dossier Sub Grid */
@@ -1576,7 +1600,7 @@ body {
         bottom: 0;
         right: 0;
     }
-    .evidence-quotes-list, .dossier-sub-grid, .examiner-metrics-grid {
+    .evidence-quotes-list, .dossier-sub-grid, .examiner-metrics-grid, .recommendations-sub-grid {
         grid-template-columns: 1fr;
     }
 }
@@ -1586,7 +1610,269 @@ body {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   PRINT STYLESHEET (Generates Official Navrachana University Report PDF)
+   COGNITIVE JOURNEY CARD (In Report / Dossier)
+   ───────────────────────────────────────────────────────────────────────────── */
+.cognitive-journey-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: var(--bg-pure-white);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.cognitive-journey-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.journey-item-box {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    transition: var(--transition);
+}
+
+.journey-item-box:hover {
+    border-color: #cbd5e1;
+    background-color: #f1f5f9;
+}
+
+.journey-item-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.journey-badge-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: var(--univ-crimson);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.journey-item-header strong {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.journey-item-box p {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin: 0;
+    padding-left: 32px;
+}
+
+.journey-alignment-callout {
+    background-color: #fff5f5;
+    border-left: 4px solid var(--univ-crimson);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text-primary);
+    margin-top: 4px;
+}
+
+.journey-alignment-callout strong {
+    color: var(--univ-crimson-dark);
+    display: block;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.journey-alignment-callout p {
+    margin: 0;
+    color: #334155;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   EMPATHETIC REALISM: ACADEMIC FEASIBILITY MATRIX
+   ───────────────────────────────────────────────────────────────────────────── */
+.feasibility-matrix-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: var(--bg-pure-white);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.feasibility-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.feasibility-tier-badge {
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    padding: 5px 12px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.score-tier-filter-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+}
+
+.filter-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.tier-buttons-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.tier-btn {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: var(--text-secondary);
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.tier-btn:hover {
+    border-color: var(--univ-crimson);
+    color: var(--univ-crimson);
+    background-color: #fff5f5;
+}
+
+.tier-btn.active {
+    background-color: var(--univ-crimson);
+    color: #ffffff;
+    border-color: var(--univ-crimson);
+    box-shadow: 0 2px 6px rgba(168, 29, 36, 0.25);
+}
+
+.reality-check-panel {
+    background-color: #fffbeb;
+    border: 1px solid #fde68a;
+    border-left: 4px solid #d97706;
+    padding: 14px 16px;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.reality-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #92400e;
+    margin-bottom: 6px;
+}
+
+.reality-check-panel p {
+    font-size: 12.5px;
+    color: #78350f;
+    line-height: 1.55;
+    margin: 0;
+}
+
+.smart-gateways-panel {
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-left: 4px solid #16a34a;
+    padding: 14px 16px;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.gateways-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #166534;
+    margin-bottom: 12px;
+}
+
+.gateways-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.gateway-item-card {
+    background-color: #ffffff;
+    border: 1px solid #86efac;
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.gateway-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #14532d;
+    margin-bottom: 4px;
+}
+
+.gateway-desc {
+    font-size: 12px;
+    color: #374151;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.strategy-summary-bar {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    font-size: 12.5px;
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+.strategy-summary-bar strong {
+    color: var(--univ-crimson);
+    font-weight: 700;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PRINT STYLESHEET (Generates Official CareerSaathi Report PDF)
    ───────────────────────────────────────────────────────────────────────────── */
 @media print {
     @page {
@@ -1647,7 +1933,7 @@ body {
         overflow: visible !important;
     }
 
-    /* 1. Official Navrachana University Print Header */
+    /* 1. Official CareerSaathi Print Header */
     .print-report-header {
         display: flex !important;
         justify-content: space-between !important;
@@ -1698,7 +1984,7 @@ body {
         margin-top: 3px !important;
     }
 
-    /* 2. HERO BEST FIT CARD — FORCE VIBRANT NAVRACHANA CRIMSON RED */
+    /* 2. HERO BEST FIT CARD — FORCE VIBRANT CAREERSAATHI CRIMSON RED */
     .dossier-hero-card {
         background-color: #a81d24 !important;
         background: #a81d24 !important;
@@ -1754,6 +2040,43 @@ body {
     .dossier-hero-card .alt-label,
     .dossier-hero-card .alt-degrees-list {
         color: #ffffff !important;
+    }
+
+    /* 2b. TOP 3 RECOMMENDATIONS SUB-GRID IN PRINT */
+    .top-three-showcase {
+        margin-bottom: 16px !important;
+        page-break-inside: avoid !important;
+    }
+
+    .recommendations-sub-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+        margin-bottom: 16px !important;
+        page-break-inside: avoid !important;
+    }
+
+    .sub-rec-card {
+        border: 1.5px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
+        border-radius: 8px !important;
+        padding: 12px 14px !important;
+        page-break-inside: avoid !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .sub-rec-title {
+        color: #0f172a !important;
+        font-size: 11pt !important;
+        font-weight: 700 !important;
+        margin-bottom: 4px !important;
+    }
+
+    .sub-rec-meta {
+        color: #475569 !important;
+        font-size: 8.5pt !important;
+        line-height: 1.4 !important;
     }
 
     /* 3. Sub-Grid: 2 Columns on Paper */
@@ -1896,5 +2219,212 @@ body {
         color: #1e293b !important;
         font-style: italic !important;
         cursor: default !important;
+    }
+
+    /* 7. Cognitive Journey Card in Print */
+    .cognitive-journey-card {
+        page-break-inside: avoid !important;
+        margin-bottom: 16px !important;
+        border: 1px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
+        border-radius: 8px !important;
+        padding: 14px 16px !important;
+    }
+
+    .cognitive-journey-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        margin-top: 8px !important;
+    }
+
+    .journey-item-box {
+        background-color: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 6px !important;
+        padding: 10px 12px !important;
+        page-break-inside: avoid !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .journey-item-header {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .journey-badge-num {
+        width: 20px !important;
+        height: 20px !important;
+        border-radius: 50% !important;
+        background-color: #a81d24 !important;
+        color: #ffffff !important;
+        font-size: 8pt !important;
+        font-weight: 800 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .journey-item-header strong {
+        font-size: 9.5pt !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
+    }
+
+    .journey-item-box p {
+        font-size: 9pt !important;
+        color: #334155 !important;
+        margin: 0 !important;
+        padding-left: 28px !important;
+        line-height: 1.45 !important;
+    }
+
+    .journey-alignment-callout {
+        background-color: #fff5f5 !important;
+        border-left: 3.5px solid #a81d24 !important;
+        border-radius: 0 6px 6px 0 !important;
+        padding: 10px 12px !important;
+        font-size: 9pt !important;
+        color: #1e293b !important;
+        margin-top: 8px !important;
+        page-break-inside: avoid !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .journey-alignment-callout strong {
+        color: #a81d24 !important;
+        font-size: 9.5pt !important;
+    }
+
+    /* 8. Empathetic Realism: Feasibility Matrix in Print */
+    .feasibility-matrix-card {
+        page-break-inside: avoid !important;
+        margin-bottom: 16px !important;
+        border: 1px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
+        border-radius: 8px !important;
+        padding: 14px 16px !important;
+    }
+
+    .feasibility-card-top {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+        margin-bottom: 8px !important;
+    }
+
+    .feasibility-tier-badge {
+        background-color: #eff6ff !important;
+        border: 1px solid #bfdbfe !important;
+        color: #1e40af !important;
+        padding: 4px 10px !important;
+        border-radius: 12px !important;
+        font-size: 8pt !important;
+        font-weight: 700 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .score-tier-filter-row {
+        display: none !important;
+    }
+
+    .reality-check-panel {
+        background-color: #fffbeb !important;
+        border: 1px solid #fde68a !important;
+        border-left: 3.5px solid #d97706 !important;
+        padding: 10px 12px !important;
+        border-radius: 0 6px 6px 0 !important;
+        margin-bottom: 10px !important;
+        page-break-inside: avoid !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .reality-header {
+        font-size: 9.5pt !important;
+        font-weight: 700 !important;
+        color: #92400e !important;
+        margin-bottom: 4px !important;
+    }
+
+    .reality-check-panel p {
+        font-size: 9pt !important;
+        color: #78350f !important;
+        margin: 0 !important;
+        line-height: 1.45 !important;
+    }
+
+    .smart-gateways-panel {
+        background-color: #f0fdf4 !important;
+        border: 1px solid #bbf7d0 !important;
+        border-left: 3.5px solid #16a34a !important;
+        padding: 10px 12px !important;
+        border-radius: 0 6px 6px 0 !important;
+        margin-bottom: 10px !important;
+        page-break-inside: avoid !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .gateways-header {
+        font-size: 9.5pt !important;
+        font-weight: 700 !important;
+        color: #166534 !important;
+        margin-bottom: 8px !important;
+    }
+
+    .gateways-list {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+    }
+
+    .gateway-item-card {
+        background-color: #ffffff !important;
+        border: 1px solid #86efac !important;
+        border-radius: 4px !important;
+        padding: 8px 10px !important;
+        page-break-inside: avoid !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .gateway-title {
+        font-size: 9pt !important;
+        font-weight: 700 !important;
+        color: #14532d !important;
+        margin-bottom: 2px !important;
+    }
+
+    .gateway-desc {
+        font-size: 8.5pt !important;
+        color: #374151 !important;
+        margin: 0 !important;
+        line-height: 1.4 !important;
+    }
+
+    .strategy-summary-bar {
+        background-color: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 6px !important;
+        padding: 8px 12px !important;
+        font-size: 9pt !important;
+        color: #0f172a !important;
+        page-break-inside: avoid !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .strategy-summary-bar strong {
+        color: #a81d24 !important;
+        font-weight: 700 !important;
     }
 }
