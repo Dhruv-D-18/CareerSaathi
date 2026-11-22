@@ -3,138 +3,388 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>University Admissions | Adaptive ML Career Counsellor</title>
+    <title>CareerSathi | Navrachana University Cognitive Admissions & Career Advisory</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="glass-bg-decor circles">
-        <div class="circle c1"></div>
-        <div class="circle c2"></div>
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- SCREEN 1: LANDING SCREEN (Matching Claude Wireframe 1)                  -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <div id="landing-screen" class="screen-view active">
+        <!-- University Header Bar -->
+        <header class="univ-top-header">
+            <div class="univ-logo-wrap">
+                <img src="assets/nuv_logo.png" alt="Navrachana University" class="univ-logo-img" onerror="this.style.display='none'">
+                <div class="univ-title-text">
+                    <span class="univ-brand-name">CareerSathi</span>
+                    <span class="univ-sub-tag">Cognitive Career & Stream Advisory • Navrachana University</span>
+                </div>
+            </div>
+            <div class="lang-selector-pills">
+                <span class="lang-pill active">English</span>
+                <span class="lang-pill">हिन्दी</span>
+                <span class="lang-pill">ગુજરાતી</span>
+            </div>
+        </header>
+
+        <!-- Main Hero Container -->
+        <main class="landing-main-container">
+            <div class="hero-content">
+                <h1 class="hero-headline">Let's work out what you're actually good at.</h1>
+                <p class="hero-subtext">A conversation, not a form. Tell us where you are and we'll take it from there.</p>
+            </div>
+
+            <!-- Two Pathway Cards -->
+            <div class="pathway-cards-grid">
+                <!-- Card A: After 10th -->
+                <div class="pathway-card" id="card-after-10th">
+                    <div class="card-eyebrow">AFTER 10TH</div>
+                    <h2 class="card-title">Choosing a stream</h2>
+                    <p class="card-desc">Science (PCM/PCB), Commerce, or Liberal Arts. Find the academic stream that genuinely fits how you think.</p>
+                    <button class="btn-start-pathway" onclick="startAssessment('after_10th')">Start talking</button>
+                </div>
+
+                <!-- Card B: After 12th -->
+                <div class="pathway-card" id="card-after-12th">
+                    <div class="card-eyebrow">AFTER 12TH</div>
+                    <h2 class="card-title">Choosing a degree</h2>
+                    <p class="card-desc">Engineering, B.Sc., B.Com, BBA, CA, Economics, Psychology, Design, and interdisciplinary pathways.</p>
+                    <button class="btn-start-pathway" onclick="startAssessment('after_12th')">Start talking</button>
+                </div>
+            </div>
+
+            <!-- Institutional Trust & Academic Footnote -->
+            <footer class="landing-footer">
+                <p class="framework-note">Based on Holland's RIASEC Psychometric Framework & Dense S-BERT NLP. Local On-Device SLM (Gemma 2 2B on RTX 4060). Your answers stay 100% private in this session.</p>
+                <p class="academic-credit">Department of Computer Science & Engineering, Navrachana University • CSE708 NLP Lab End Sem Practical</p>
+            </footer>
+        </main>
     </div>
-    
-    <div class="main-wrapper">
-        <div class="app-container">
-            <!-- LEFT PANEL: Chat Interface -->
-            <section class="panel-left">
-                <header class="app-header">
-                    <div class="logo-container">
-                        <div class="logo-sparkle">✦</div>
-                        <div>
-                            <h1>Admissions Gateway</h1>
-                            <p class="subtitle">Traditional ML Adaptive Chatbot</p>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- SCREEN 2 & 3: CONVERSATIONAL WORKSPACE + CLAUDE ARTIFACT SPLIT          -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <div id="workspace-screen" class="screen-view">
+        <!-- Top App Navigation Bar -->
+        <header class="app-navbar">
+            <div class="nav-left">
+                <div class="brand-clickable" onclick="returnToLanding()" title="Return to Landing Page">
+                    <img src="assets/nuv_logo.png" alt="Navrachana" class="nav-logo-thumb" onerror="this.style.display='none'">
+                    <span class="nav-brand-title">CareerSathi</span>
+                </div>
+                <span class="pathway-tag" id="current-pathway-tag">Choosing a degree</span>
+            </div>
+
+            <div class="nav-right">
+                <div class="turn-counter-badge" id="turn-counter-badge">
+                    <span class="turn-dot"></span>
+                    <span id="turn-text">Turn 1 of 6–15</span>
+                </div>
+                <button class="btn-dossier-pill hidden" id="open-dossier-btn" onclick="toggleArtifactPane(true)">
+                    <span>📄 View Admissions Dossier</span>
+                    <span class="sparkle-icon">↗</span>
+                </button>
+                <button class="btn-telemetry-toggle" id="examiner-mode-btn" onclick="toggleExaminerMode()" title="Toggle Live NLP & Psychometric Telemetry for Examiners">
+                    <span class="pulse-indicator"></span>
+                    <span>🔬 Examiner Telemetry</span>
+                </button>
+                <button class="btn-restart-icon" onclick="resetAssessment()" title="Restart Session">↺</button>
+            </div>
+        </header>
+
+        <!-- Workspace Dual-Pane Layout -->
+        <div class="workspace-body" id="workspace-body">
+            
+            <!-- ── LEFT JOURNEY RAIL (Matching Claude Wireframe 2) ──────────── -->
+            <aside class="journey-rail" id="journey-rail">
+                <div class="rail-header">
+                    <span class="rail-brand">CareerSathi</span>
+                    <span class="rail-sub">Guided Path</span>
+                </div>
+
+                <div class="rail-section-title">YOUR JOURNEY</div>
+                
+                <ol class="journey-steps-list">
+                    <li class="journey-step active" id="step-1">
+                        <span class="step-num">1</span>
+                        <div class="step-content">
+                            <span class="step-name">Interests</span>
+                            <span class="step-desc">Curiosities & passions</span>
+                        </div>
+                    </li>
+                    <li class="journey-step" id="step-2">
+                        <span class="step-num">2</span>
+                        <div class="step-content">
+                            <span class="step-name">Thinking style</span>
+                            <span class="step-desc">Problem-solving instinct</span>
+                        </div>
+                    </li>
+                    <li class="journey-step" id="step-3">
+                        <span class="step-num">3</span>
+                        <div class="step-content">
+                            <span class="step-name">Strengths</span>
+                            <span class="step-desc">Environment & collaboration</span>
+                        </div>
+                    </li>
+                    <li class="journey-step" id="step-4">
+                        <span class="step-num">4</span>
+                        <div class="step-content">
+                            <span class="step-name">Your recommendation</span>
+                            <span class="step-desc">Personalized Dossier</span>
+                        </div>
+                    </li>
+                </ol>
+
+                <p class="rail-footnote">Stages adapt dynamically to your answers, so the order may evolve.</p>
+
+                <!-- Student Mini-Affinity Real-Time Widget -->
+                <div class="rail-mini-telemetry">
+                    <div class="mini-telemetry-header">
+                        <span class="mini-title">STREAM ALIGNMENT</span>
+                        <span class="mini-entropy-tag" id="rail-entropy-tag">H = 1.000</span>
+                    </div>
+                    <div class="stream-mini-bars" id="stream-mini-bars">
+                        <div class="mini-stream-row">
+                            <span class="mini-stream-label">Science (PCM)</span>
+                            <div class="mini-bar-track"><div class="mini-bar-fill pcm-bar" style="width: 25%"></div></div>
+                            <span class="mini-stream-val">25%</span>
+                        </div>
+                        <div class="mini-stream-row">
+                            <span class="mini-stream-label">Science (PCB)</span>
+                            <div class="mini-bar-track"><div class="mini-bar-fill pcb-bar" style="width: 25%"></div></div>
+                            <span class="mini-stream-val">25%</span>
+                        </div>
+                        <div class="mini-stream-row">
+                            <span class="mini-stream-label">Commerce</span>
+                            <div class="mini-bar-track"><div class="mini-bar-fill comm-bar" style="width: 25%"></div></div>
+                            <span class="mini-stream-val">25%</span>
+                        </div>
+                        <div class="mini-stream-row">
+                            <span class="mini-stream-label">Arts & Liberal</span>
+                            <div class="mini-bar-track"><div class="mini-bar-fill arts-bar" style="width: 25%"></div></div>
+                            <span class="mini-stream-val">25%</span>
                         </div>
                     </div>
-                    <div class="header-stats">
-                        <div class="stat-badge" id="turn-badge">Step: 1 / 6</div>
-                    </div>
-                </header>
+                </div>
+            </aside>
 
-                <main class="chat-container" id="chat-container">
-                    <!-- Dynamic chat messages injected here -->
-                </main>
-
-                <div class="loading-indicator hidden" id="loading-indicator">
-                    <div class="bounce-dot"></div>
-                    <div class="bounce-dot"></div>
-                    <div class="bounce-dot"></div>
+            <!-- ── CENTER / LEFT CHAT PANE ──────────────────────────────────── -->
+            <section class="chat-pane" id="chat-pane">
+                <!-- Chat Stage Header -->
+                <div class="chat-stage-header">
+                    <h2 class="current-stage-title" id="stage-title-text">Interests</h2>
+                    <span class="stage-guide-text" id="stage-guide-text">Tell us what you naturally enjoy working on.</span>
                 </div>
 
-                <div class="interactive-input-wrapper">
-                    <!-- Chip Options (Selectable Options) -->
-                    <div class="options-container" id="options-container">
-                        <!-- Selectable buttons dynamically added here -->
-                    </div>
+                <!-- Chat Messages Scroll Container -->
+                <div class="chat-messages-container" id="chat-messages-container">
+                    <!-- Messages dynamically injected here -->
+                </div>
 
-                    <!-- Open Ended Text Area -->
-                    <div class="input-area" id="input-area">
-                        <textarea id="user-input" placeholder="Type your own custom response here..." rows="1"></textarea>
-                        <button id="send-btn" aria-label="Send message" title="Submit Custom Text Response">
-                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="send-icon">
-                                <line x1="22" y1="2" x2="11" y2="13"></line>
-                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                            </svg>
-                        </button>
+                <!-- Loading Bubble -->
+                <div class="chat-loading-bubble hidden" id="chat-loading">
+                    <span class="loading-label">CareerSathi is thinking</span>
+                    <div class="typing-dots">
+                        <span></span><span></span><span></span>
                     </div>
                 </div>
+
+                <!-- Interactive Reply Chips -->
+                <div class="quick-chips-wrapper" id="quick-chips-wrapper">
+                    <!-- Quick reply buttons injected here -->
+                </div>
+
+                <!-- Conversational Input Bar -->
+                <form class="chat-input-bar" id="chat-input-form" onsubmit="handleUserSubmit(event)">
+                    <textarea 
+                        id="chat-textarea" 
+                        placeholder="Type your answer naturally (e.g., what you'd do or any question)..." 
+                        rows="1"
+                        onkeydown="handleTextareaKeydown(event)"
+                    ></textarea>
+                    <button type="submit" id="btn-send-message" class="btn-send-message" aria-label="Send response">
+                        <span>Send</span>
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </form>
             </section>
 
-            <!-- RIGHT PANEL: Explainable ML Dashboard -->
-            <section class="panel-right" id="xai-panel">
-                <div class="panel-header">
-                    <h2>Live Explainable ML Analysis</h2>
-                    <span class="pulse-indicator">✦ Live</span>
-                </div>
-
-                <div class="dashboard-content">
-                    <!-- Section 1: Probability Fit (Random Forest Predictions) -->
-                    <div class="xai-card">
-                        <h3>Random Forest Probability Distribution</h3>
-                        <p class="card-meta">Aptitude weights across 8 career tracks</p>
-                        <div class="probabilities-list" id="probabilities-list">
-                            <!-- JS will inject 8 progress bars here -->
-                        </div>
+            <!-- ── RIGHT ARTIFACT SPLIT PANE (Claude-Style Interactive Dossier) ─ -->
+            <aside class="artifact-split-pane" id="artifact-split-pane">
+                <!-- Artifact Window Header -->
+                <div class="artifact-window-header">
+                    <div class="artifact-tabs-group">
+                        <button class="artifact-tab-btn active" id="tab-student-dossier" onclick="switchArtifactTab('student')">
+                            <span>🎓 Admissions Dossier</span>
+                        </button>
+                        <button class="artifact-tab-btn" id="tab-examiner-xai" onclick="switchArtifactTab('examiner')">
+                            <span class="pulse-dot-red"></span>
+                            <span>🔬 Examiner NLP Telemetry (XAI)</span>
+                        </button>
                     </div>
 
-                    <!-- Section 2: TF-IDF Highlight Cloud -->
-                    <div class="xai-card">
-                        <h3>Linguistic Feature Extraction (TF-IDF)</h3>
-                        <p class="card-meta">Active vocabulary detected in your open text</p>
-                        <div class="keyword-cloud-wrapper">
-                            <div class="keyword-cloud" id="keyword-cloud">
-                                <span class="empty-state-text">Waiting for custom typed answers...</span>
+                    <div class="artifact-header-actions">
+                        <button class="btn-action-sm" onclick="printDossier()" title="Print / Download PDF">
+                            <span>📥 Download PDF</span>
+                        </button>
+                        <button class="btn-action-close" onclick="toggleArtifactPane(false)" title="Collapse Artifact Pane">✕</button>
+                    </div>
+                </div>
+
+                <!-- Artifact Scrollable Content -->
+                <div class="artifact-body-scrollable">
+                    
+                    <!-- TAB A: STUDENT ADMISSIONS DOSSIER -->
+                    <div class="artifact-tab-content active" id="content-student-dossier">
+                        <!-- Hero Best Fit Card (Navrachana Crimson) -->
+                        <div class="dossier-hero-card" id="dossier-hero-card">
+                            <div class="hero-card-badge">BEST FIT RECOMMENDATION</div>
+                            <h2 class="hero-degree-title" id="hero-degree-title">B.Tech in Computer Science & AI</h2>
+                            <p class="hero-degree-meta" id="hero-degree-meta">Specialisation: Software Engineering & Cloud. Stream: Science (PCM).</p>
+                            <div class="hero-alternatives-row">
+                                <span class="alt-label">Also worth exploring:</span>
+                                <span class="alt-degrees-list" id="hero-alternatives-text">B.Sc Applied Mathematics, B.Des UI/UX, B.Tech Robotics</span>
+                            </div>
+                        </div>
+
+                        <!-- 2-Column Sub-Grid: RIASEC Bars + Fit Summary -->
+                        <div class="dossier-sub-grid">
+                            <!-- RIASEC Horizontal Bars -->
+                            <div class="dossier-card riasec-profile-card">
+                                <h3 class="card-heading-serif">Your RIASEC Profile</h3>
+                                <p class="card-caption">Empirical alignment across Holland's 6 cognitive dimensions</p>
+                                
+                                <div class="riasec-bars-list" id="riasec-horizontal-bars">
+                                    <!-- Injected dynamically -->
+                                </div>
+                            </div>
+
+                            <!-- Indian Entrance Roadmap -->
+                            <div class="dossier-card entrance-roadmap-card">
+                                <h3 class="card-heading-serif">Recommended Entrance Exams</h3>
+                                <p class="card-caption">Target examinations for admission into top universities</p>
+                                <div class="entrance-chips-wrap" id="entrance-exams-chips">
+                                    <span class="exam-chip">JEE Mains</span>
+                                    <span class="exam-chip">GUJCET</span>
+                                    <span class="exam-chip">NUV-DET (Navrachana)</span>
+                                </div>
+                                <div class="degree-profile-box" id="degree-profile-box">
+                                    <strong>Curriculum Focus:</strong>
+                                    <p id="degree-profile-desc">Algorithmic thinking, cloud architecture, and machine learning systems.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- "Why this fits you" Evidence Card (Quotes exact student replies) -->
+                        <div class="dossier-card why-fits-card">
+                            <h3 class="card-heading-serif">Why this fits you</h3>
+                            <p class="card-caption">Grounded in your specific answers throughout our conversation</p>
+                            
+                            <div class="evidence-quotes-list" id="evidence-quotes-container">
+                                <!-- Quotes with jump links dynamically injected -->
+                            </div>
+                        </div>
+
+                        <!-- Recalibration & Action Footer Card -->
+                        <div class="dossier-card recalibrate-action-card">
+                            <div class="recal-prompt-col">
+                                <h4>Not feeling this recommendation?</h4>
+                                <p>Finding what fits often begins with ruling out what doesn't. Tell us what felt wrong, and CareerSathi will recalibrate to a fresh set of pathways.</p>
+                            </div>
+                            <div class="recal-buttons-row">
+                                <button class="btn-outline-recal" onclick="triggerRecalibration()">
+                                    <span>🔄 I didn't like this suggestion — Let's refine</span>
+                                </button>
+                                <button class="btn-text-review" onclick="focusChatForReview()">
+                                    <span>← Review Full Conversation History</span>
+                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Section 3: Decision Tree Splitting Path -->
-                    <div class="xai-card">
-                        <h3>Decision Tree Path Traversal</h3>
-                        <p class="card-meta">Deterministic routing tree splits</p>
-                        <div class="tree-path" id="tree-path">
-                            <span class="empty-state-text">Start replying to view the classifier path splits.</span>
+                    <!-- TAB B: EXAMINER NLP TELEMETRY (For Jaideepsinh Sir) -->
+                    <div class="artifact-tab-content" id="content-examiner-xai">
+                        <div class="examiner-banner">
+                            <strong>CSE708 NLP Lab Practical — Live Algorithmic State Inspector</strong>
+                            <span>Verifiable telemetry for Sessions 7–29</span>
+                        </div>
+
+                        <!-- Metrics Grid -->
+                        <div class="examiner-metrics-grid">
+                            <!-- Radar Chart -->
+                            <div class="dossier-card xai-box">
+                                <div class="xai-box-header">
+                                    <h4>6D RIASEC Radar Geometry</h4>
+                                    <span class="formula-badge">S-BERT Cosine in R⁶</span>
+                                </div>
+                                <div class="radar-container-svg">
+                                    <svg id="xai-radar-svg" viewBox="0 0 280 230" class="radar-svg-canvas"></svg>
+                                </div>
+                            </div>
+
+                            <!-- Shannon Entropy Math -->
+                            <div class="dossier-card xai-box">
+                                <div class="xai-box-header">
+                                    <h4>Cognitive Uncertainty (Shannon Entropy)</h4>
+                                    <span class="formula-badge">H_norm = -1/log₂(6) ∑ p_k log₂ p_k</span>
+                                </div>
+                                <div class="entropy-display-wrap">
+                                    <div class="entropy-val-hero" id="xai-entropy-val">0.412</div>
+                                    <div class="entropy-meter-track">
+                                        <div class="entropy-meter-fill" id="xai-entropy-fill" style="width: 41.2%"></div>
+                                    </div>
+                                    <p class="entropy-expl" id="xai-entropy-status">Distribution converged (H &lt; 0.65). Belief state is stable.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Syntactic Tokens & POS Action Verbs (Sessions 7-10) -->
+                        <div class="dossier-card xai-box">
+                            <div class="xai-box-header">
+                                <h4>Linguistic Parsing & Morphemes (Sessions 7–10)</h4>
+                                <span class="formula-badge">spaCy POS + Lemmatization</span>
+                            </div>
+                            <div class="pos-tokens-wrap" id="xai-pos-tokens">
+                                <!-- POS verbs and noun chunks injected -->
+                            </div>
+                        </div>
+
+                        <!-- TF-IDF Attribution Keyword Cloud (Sessions 11-13) -->
+                        <div class="dossier-card xai-box">
+                            <div class="xai-box-header">
+                                <h4>TF-IDF Sparse Attribution (Sessions 11–13)</h4>
+                                <span class="formula-badge">V = 451 N-grams</span>
+                            </div>
+                            <div class="tfidf-cloud-wrap" id="xai-tfidf-cloud">
+                                <!-- Keywords injected -->
+                            </div>
+                        </div>
+
+                        <!-- Decision Tree Routing Splits (Sessions 14-16) -->
+                        <div class="dossier-card xai-box">
+                            <div class="xai-box-header">
+                                <h4>Decision Tree Rule Splits (Sessions 14–16)</h4>
+                                <span class="formula-badge">Deterministic Tree Trajectory</span>
+                            </div>
+                            <div class="tree-splits-list" id="xai-tree-splits">
+                                <!-- Tree nodes injected -->
+                            </div>
                         </div>
                     </div>
+
                 </div>
-            </section>
-        </div>
+            </aside>
 
-        <!-- SCORECARD OVERLAY: Shown at completion -->
-        <div class="scorecard-overlay hidden" id="scorecard-overlay">
-            <div class="scorecard-card">
-                <div class="scorecard-header">
-                    <div class="trophy-sparkle">🏆</div>
-                    <h2>Your Personalized Career Report</h2>
-                    <p>Admissions Assessment Successful</p>
-                </div>
-
-                <div class="scorecard-results">
-                    <div class="rec-box primary-rec">
-                        <span class="badge">Primary Suggestion</span>
-                        <h3 id="primary-rec-title">Computer Science</h3>
-                        <p class="rec-desc">Highest statistical match based on your interests and problem-solving patterns.</p>
-                    </div>
-
-                    <div class="rec-box secondary-rec">
-                        <span class="badge">Secondary Choice</span>
-                        <h3 id="secondary-rec-title">Electrical Engineering</h3>
-                        <p class="rec-desc">Strong alternate path aligned with your mathematical or hardware inclinations.</p>
-                    </div>
-
-                    <div class="justification-container">
-                        <h4>Aptitude & Decision Justification:</h4>
-                        <ul id="justification-list">
-                            <!-- Dynanically populated bullets -->
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="scorecard-actions">
-                    <button class="btn-primary" id="restart-btn">Restart Assessment</button>
-                </div>
-            </div>
         </div>
     </div>
+
+    <!-- Script inclusion -->
     <script src="script.js"></script>
 </body>
 </html>
