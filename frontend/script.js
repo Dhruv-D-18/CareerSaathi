@@ -68,6 +68,8 @@ function resetAssessment() {
     document.getElementById("chat-messages-container").innerHTML = "";
     document.getElementById("quick-chips-wrapper").innerHTML = "";
     document.getElementById("open-dossier-btn").classList.add("hidden");
+    const dockedBar = document.getElementById("docked-dossier-bar");
+    if (dockedBar) dockedBar.classList.add("hidden");
 
     startAssessment(sessionState.level);
 }
@@ -101,6 +103,8 @@ async function startAssessment(level) {
     document.getElementById("chat-messages-container").innerHTML = "";
     document.getElementById("quick-chips-wrapper").innerHTML = "";
     document.getElementById("open-dossier-btn").classList.add("hidden");
+    const initDocked = document.getElementById("docked-dossier-bar");
+    if (initDocked) initDocked.classList.add("hidden");
 
     showLoading(true);
     try {
@@ -234,10 +238,12 @@ function handleServerResponse(data) {
         renderDossierArtifact(data.report);
     }
 
-    // Dossier Unlock Button in Navbar
+    // Docked Dossier Banner directly above input box + Navbar Pill
+    const dockedBar = document.getElementById("docked-dossier-bar");
     const openDossierBtn = document.getElementById("open-dossier-btn");
-    if (data.can_complete && openDossierBtn) {
-        openDossierBtn.classList.remove("hidden");
+    if (data.can_complete) {
+        if (dockedBar) dockedBar.classList.remove("hidden");
+        if (openDossierBtn) openDossierBtn.classList.remove("hidden");
     }
 
     // Check if assessment completed or dossier should split-open
@@ -247,9 +253,6 @@ function handleServerResponse(data) {
             renderDossierArtifact(data.report);
             toggleArtifactPane(true);
         }
-    } else if (data.can_complete && !document.querySelector(".chat-artifact-card")) {
-        // Inject Claude-style Artifact Card inside Chat Stream
-        injectArtifactCardInChat();
     }
 
     // If split pane is currently open, re-render to reflect live updates

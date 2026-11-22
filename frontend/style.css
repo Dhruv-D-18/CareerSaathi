@@ -848,6 +848,79 @@ body {
     background-color: var(--univ-crimson-light);
 }
 
+/* Docked Dossier Banner directly above input box (Fixed, never scrolls away!) */
+.docked-dossier-bar {
+    background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
+    border: 1.5px solid var(--univ-crimson-border);
+    border-radius: var(--radius-md);
+    margin: 0 32px 10px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(168, 29, 36, 0.08);
+    transition: var(--transition);
+    animation: slideUp 0.3s ease-out;
+}
+
+.docked-dossier-bar:hover {
+    border-color: var(--univ-crimson);
+    box-shadow: 0 4px 14px rgba(168, 29, 36, 0.14);
+    transform: translateY(-1px);
+}
+
+.docked-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.docked-bar-icon {
+    font-size: 22px;
+}
+
+.docked-bar-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.docked-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--univ-crimson-dark);
+}
+
+.docked-subtitle {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.btn-docked-open {
+    background-color: var(--univ-crimson);
+    color: #ffffff;
+    border: none;
+    padding: 7px 14px;
+    border-radius: var(--radius-full);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition);
+}
+
+.btn-docked-open:hover {
+    background-color: var(--univ-crimson-hover);
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 /* Input Bar */
 .chat-input-bar {
     padding: 16px 32px 24px;

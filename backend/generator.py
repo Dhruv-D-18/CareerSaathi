@@ -76,21 +76,32 @@ def generate_dynamic_question(
     top_desc = RIASEC_CODES[top_code]["title"]
     sec_desc = RIASEC_CODES[sec_code]["title"]
     
-    # Determine Journey Stage
-    if turn_num <= 2:
-        stage_focus = "STAGE 1: INTERESTS & PASSIONS. Deepen what excites them about what they just mentioned."
-    elif turn_num <= 4:
-        stage_focus = "STAGE 2: THINKING STYLE & PROBLEM SOLVING. Ask how they tackle a crisis or break down a tough challenge."
-    else:
-        stage_focus = "STAGE 3: STRENGTHS & WORK ENVIRONMENT. Ask about their ideal work environment (solo deep focus vs team leadership, abstract theory vs building physical/visual things)."
-    
-    # Compile recent dialogue context (last 3 exchanges)
+    # Compile full recent dialogue context (last 8 exchanges so model never forgets)
     recent_context = ""
-    for msg in history[-3:]:
+    history_lower = ""
+    for msg in history[-8:]:
         role = "Student" if msg["role"] == "user" else "Counselor"
-        recent_context += f"{role}: {msg['content']}\n"
+        content = msg["content"]
+        recent_context += f"{role}: {content}\n"
+        history_lower += f" {content.lower()}"
 
-    # Contextual prompt engineering with strict anti-loop and anti-filler rules
+    # Track what has already been discussed in dialogue to strictly avoid repeating questions
+    team_already_discussed = any(w in history_lower for w in ["team", "solo", "collaborat", "alone", "group", "leading"])
+    coding_discussed = any(w in history_lower for w in ["code", "coding", "software", "app", "mobile", "algorithm"])
+    
+    # Determine Journey Stage with dynamic non-repeating sub-focus
+    if turn_num <= 2:
+        stage_focus = "STAGE 1: INTERESTS & PASSIONS. Deepen what excites them about the specific projects or applications they mentioned."
+    elif turn_num <= 4:
+        stage_focus = "STAGE 2: THINKING STYLE & EXECUTION. Ask about how they break down a complex problem, debug errors, or organize tasks."
+    elif not team_already_discussed:
+        stage_focus = "STAGE 3: WORK STYLE. Ask whether they thrive more in deep individual focus or brainstorming collaboratively in a team."
+    elif coding_discussed:
+        stage_focus = "STAGE 3 (DEEP DIVE): ARCHITECTURE & USER EXPERIENCE. Ask if they prefer working on backend logic, databases and algorithms, or designing visual screens and interactive UI/UX for users."
+    else:
+        stage_focus = "STAGE 3 (DEEP DIVE): REAL-WORLD IMPACT. Ask if they prefer building brand-new experimental ideas from scratch or optimizing and refining practical everyday tools."
+
+    # Contextual prompt engineering with strict anti-loop and anti-repetition rules
     if is_uncertain:
         prompt = f"""You are a warm, empathetic Indian career counselor talking with a student ({education_level}).
 Recent chat:
@@ -104,17 +115,20 @@ CRITICAL RULES:
 4. Do NOT use multiple-choice (A/B/C) or bullets. Maximum 30 words:"""
 
     else:
-        prompt = f"""You are an insightful, empathetic Indian career counselor at Navrachana University talking with a student ({education_level}, {stream}).
+        prompt = f"""You are an insightful, empathetic Indian career counselor talking with a student ({education_level}, {stream}).
 Recent chat:
 {recent_context}
 Student's latest response: "{user_reply}"
 Current Goal: {stage_focus}
 
-CRITICAL RULES:
-1. DIRECT RELEVANCE: Look at what the student literally said ("{user_reply}"). If they mentioned coding, software, mobile apps, or automation, talk about SOFTWARE, CODING, or APPS. Never force business, sales, or unrelated topics!
-2. NO PREACHING: Never lecture the student about "focusing on academic goals" or "studying hard for entrance exams". Always stay encouraging, curious, and collaborative.
-3. NO GENERIC FILLER: Do NOT start with "That's a great choice!", "That's a great idea!", or "Interesting!". Start directly with your insight or question.
-4. Keep it conversational, like a thoughtful mentor talking 1-on-1. Maximum 35 words. No bullets or A/B/C:"""
+CRITICAL ANTI-REPETITION RULES:
+1. STRICT NON-REPETITION: Inspect the recent chat above carefully! If the student already answered about teamwork, solo work, or leading, NEVER ask about solo vs team again!
+2. DIRECT CONTINUITY: Follow their latest answer ("{user_reply}").
+   - If they mentioned coding: Ask whether they prefer deep backend logic/algorithms OR designing the visual interfaces that users interact with.
+   - If they mentioned design: Ask about user journeys vs graphic styling.
+3. NO PREACHING: Never lecture the student about "focusing on academic goals" or "studying hard for entrance exams". Stay curious, warm, and conversational.
+4. NO GENERIC FILLER: Do NOT start with "That's a great choice!", "That's a great idea!", or "Interesting!". Start directly with your insight or question.
+5. Keep it concise (under 35 words). No multiple-choice options (A/B/C) or bullets:"""
 
     response = query_local_gemma(prompt, timeout=25, max_tokens=85)
     

@@ -186,6 +186,21 @@
                     <!-- Quick reply buttons injected here -->
                 </div>
 
+                <!-- Fixed Docked Dossier Banner directly above input box (never scrolls away!) -->
+                <div class="docked-dossier-bar hidden" id="docked-dossier-bar" onclick="toggleArtifactPane(true)">
+                    <div class="docked-bar-left">
+                        <span class="docked-bar-icon">📄</span>
+                        <div class="docked-bar-text">
+                            <span class="docked-title">CareerSathi Admissions Dossier Ready</span>
+                            <span class="docked-subtitle">Click to view side-by-side recommendation & RIASEC profile</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-docked-open">
+                        <span>View Dossier</span>
+                        <span class="docked-arrow">↗</span>
+                    </button>
+                </div>
+
                 <!-- Conversational Input Bar -->
                 <form class="chat-input-bar" id="chat-input-form" onsubmit="handleUserSubmit(event)">
                     <textarea 
