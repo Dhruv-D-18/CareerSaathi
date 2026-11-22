@@ -271,17 +271,17 @@ function handleServerResponse(data) {
                 dockedBar.classList.add("pulse-highlight");
                 if (dockedIcon) dockedIcon.innerText = "✨";
                 if (dockedTitle) dockedTitle.innerHTML = `<span class="badge-updated">UPDATED MATCH</span> <strong>${escapeHtml(newTitle)}</strong>`;
-                if (dockedSubtitle) dockedSubtitle.innerText = "CareerSaathi has updated your Admissions Dossier • Click to review";
+                if (dockedSubtitle) dockedSubtitle.innerText = "CareerSaathi has updated your Admissions Report • Click to review";
                 
                 // Append in-chat notification card if chat pane doesn't have split open
                 appendInChatUpdateCard(newTitle, data.report.primary_fit);
             } else if (data.report.mode === "exploratory" || data.is_exploratory) {
                 if (dockedIcon) dockedIcon.innerText = "🌱";
-                if (dockedTitle) dockedTitle.innerHTML = `<strong>Broad Horizon Discovery Dossier</strong>: ${escapeHtml(newTitle)}`;
+                if (dockedTitle) dockedTitle.innerHTML = `<strong>Broad Horizon Discovery Report</strong>: ${escapeHtml(newTitle)}`;
                 if (dockedSubtitle) dockedSubtitle.innerText = "Top 3 Versatile Gateway Pathways • Maximum Optionality";
             } else {
                 if (dockedIcon) dockedIcon.innerText = "📄";
-                if (dockedTitle) dockedTitle.innerHTML = `<strong>Admissions Dossier Ready</strong>: ${escapeHtml(newTitle)}`;
+                if (dockedTitle) dockedTitle.innerHTML = `<strong>Admissions Report Ready</strong>: ${escapeHtml(newTitle)}`;
                 if (dockedSubtitle) dockedSubtitle.innerText = "Top 3 Personalized Pathways • Click to view side-by-side";
             }
         }
@@ -318,10 +318,10 @@ function appendInChatUpdateCard(title, fitScore) {
         <div class="update-card-left">
             <span class="update-card-badge">✨ NEW RECOMMENDATION READY</span>
             <h4 class="update-card-title">${escapeHtml(title)}</h4>
-            <p class="update-card-desc">CareerSaathi has updated your admissions dossier (${fitScore}% match). Click to open the side pane.</p>
+            <p class="update-card-desc">CareerSaathi has updated your admissions report (${fitScore}% match). Click to open the side pane.</p>
         </div>
         <button type="button" class="btn btn-crimson btn-sm update-card-btn" onclick="toggleArtifactPane(true)">
-            View Dossier &nearr;
+            View Report &nearr;
         </button>
     `;
     container.appendChild(cardDiv);
@@ -360,11 +360,11 @@ function injectArtifactCardInChat() {
         <div class="artifact-card-left">
             <span class="artifact-card-icon">📄</span>
             <div>
-                <div class="artifact-card-title">CareerSaathi Admissions Dossier Generated</div>
+                <div class="artifact-card-title">CareerSaathi Admissions Report Generated</div>
                 <div class="artifact-card-subtitle">Top 3 Personalized Pathways • Click to open Side-by-Side Artifact View</div>
             </div>
         </div>
-        <span class="artifact-card-action">View Dossier ↗</span>
+        <span class="artifact-card-action">View Report ↗</span>
     `;
     container.appendChild(cardDiv);
     scrollChatToBottom();
@@ -639,7 +639,7 @@ function switchActiveRecommendation(index) {
     } else {
         const stream = activeDegree.stream || latestDossierReport.primary_stream || "General";
         const is10th = latestDossierReport.is_10th || (sessionState.level === "after_10th");
-        const matrix = generateLocalFeasibilityMatrix(activeDegree.degree, stream, sessionState.score_tier || "passion_first", is10th);
+        const matrix = generateLocalFeasibilityMatrix(activeDegree.degree, stream, is10th);
         renderFeasibilityMatrix(matrix);
     }
 }
@@ -862,128 +862,98 @@ function applyScoreTier(tierKey) {
     const stream = activeDegObj.stream || "General";
     const is10th = latestDossierReport.is_10th || (sessionState.level === "after_10th");
 
-    const matrix = generateLocalFeasibilityMatrix(deg, stream, tierKey, is10th);
+    const matrix = generateLocalFeasibilityMatrix(deg, stream, is10th);
     renderFeasibilityMatrix(matrix);
 }
 
-function generateLocalFeasibilityMatrix(degName, stream, tierKey, is10th) {
-    const tierBadges = {
-        "high": "Above 85% / High Percentile (Tier-1 Target)",
-        "competitive": "70% – 85% / Competitive Range",
-        "moderate": "55% – 70% / Moderate (Focus on Smart Pathways)",
-        "foundational": "Under 55% / Foundational Band",
-        "passion_first": "Aptitude-First Assessment (Unrestricted)"
-    };
-
+function generateLocalFeasibilityMatrix(degName, stream, is10th) {
     let reality = "";
     let pathways = [];
     let strategy = "";
 
     if (stream.includes("PCM") || stream.includes("Science (PCM)")) {
-        if (tierKey === "high") {
-            reality = `For ${degName}, premier institutions (IITs, NITs, BITS) require top 2% national rank in JEE Mains or BITSAT (>98.5 percentile). Your score profile indicates strong foundational capability to compete at this level.`;
-            pathways = [
-                { title: "Tier-1 National Roadmaps", desc: "Focus rigorously on JEE Advanced and BITSAT with timed full-syllabus mock tests." },
-                { title: "Premier State Engineering Quota", desc: "Target top government state colleges via State CET as a high-ROI safety net." }
-            ];
-            strategy = "Pursue Tier-1 JEE/BITSAT preparation while keeping premier state university CET counseling as your secure backup.";
-        } else if (tierKey === "competitive") {
-            reality = `Tier-1 IIT/NIT seats for ${degName} remain competitive, but reputable state government engineering colleges and premier private universities (via CET, COMEDK, VITEEE) are well within your reach.`;
-            pathways = [
-                { title: "State Engineering Merit Seats", desc: "Top state engineering colleges offer identical campus placements with major tech firms at a fraction of Tier-1 stress." },
-                { title: "Specialized Emerging Branches", desc: "Branches like AI/Data Science, Mechatronics, or IoT often have accessible cutoffs with equal placement prospects." }
-            ];
-            strategy = "Target State CET and university-specific entrance exams where your score tier provides strong seat security.";
-        } else if (tierKey === "moderate" || tierKey === "foundational") {
-            reality = `National entrance exams like JEE Mains feature intense competition (>14 lakh aspirants). Rushing into high-cost multi-year coaching can lead to academic burnout. Modern technology careers are strictly skill-driven, not degree-monopolized.`;
-            pathways = [
-                { title: "Smart Route A: BCA (Bachelor of Computer Applications)", desc: "Admits directly on 50%+ 12th board aggregate with ZERO JEE stress. You learn programming, databases, and app dev from Day 1. Major tech firms (TCS, Infosys, Deloitte, startups) hire directly, or you can pursue MCA for complete parity with B.Tech CSE." },
-                { title: "Smart Route B: Polytechnic Diploma ➔ B.Tech Lateral Entry", desc: "Hands-on 3-year technical diploma admitting directly into the 2nd year of B.Tech engineering, completely bypassing 11th/12th board stress." },
-                { title: "Smart Route C: University Holistic Entrances (CUET UG)", desc: "Private and state universities admitting through CUET UG or aptitude exams evaluate problem-solving intuition rather than brutal negative-marking JEE ranks." }
-            ];
-            strategy = "Avoid high-stress repeat years for JEE. Opt for direct-entry BCA or lateral diploma routes where you begin software coding immediately and build an industry portfolio.";
-        } else {
-            reality = `Admission to ${degName} ranges from Tier-1 competitive exams (JEE/BITSAT) to flexible aptitude-based university entrances (CUET UG). Minimum eligibility typically requires 50-60% aggregate in PCM.`;
-            pathways = [
-                { title: "Dual Pathway Strategy", desc: "Balance high-reach national entrance tests (JEE) with flexible private/state university entrance tests." },
-                { title: "Applied BCA / B.Sc IT Alternative", desc: "Direct software coding pathway requiring only passing marks in board examinations." }
-            ];
-            strategy = "Evaluate whether you thrive in high-pressure mathematical exam speed (B.Tech) or prefer project-driven software development (BCA).";
-        }
-    } else if (stream.includes("PCB") || stream.includes("Science (PCB)")) {
-        if (tierKey === "high") {
-            reality = `Government medical seats (MBBS) require 620-680+ marks in NEET (>99th percentile). Your academic profile gives you the foundational stamina needed for top medical ranks.`;
-            pathways = [
-                { title: "All-India & State NEET Counseling", desc: "Focus on high-speed NCERT biology and chemistry revision to secure government medical colleges." },
-                { title: "Top Biotechnology Research Institutes", desc: "Target IISERs, NISER, and central universities for high-impact biological research." }
-            ];
-            strategy = "Aim for NEET government quota while keeping BDS and B.Sc Biotechnology in central universities as contingencies.";
-        } else {
-            reality = `Government MBBS seats face extreme scarcity (>24 lakh applicants for ~55,000 government seats). Taking 2-3 dropper years for NEET carries immense emotional exhaustion with no guaranteed outcome.`;
-            pathways = [
-                { title: "Smart Route A: B.Sc in Biotechnology / Bioinformatics", desc: "The fastest-growing segment of healthcare (14% CAGR in genomics and precision medicine). Admits via 12th marks or CUET with zero NEET gatekeeping." },
-                { title: "Smart Route B: Allied Health Sciences (Radiology, Lab Tech, Anesthesia)", desc: "Hospital operations depend on diagnostic technologists. 100% campus placement demand with immediate career security." },
-                { title: "Smart Route C: B.Pharm (Bachelor of Pharmacy)", desc: "Direct admission via board scores or State CET. Opens high-paying pathways into drug discovery and clinical trials." }
-            ];
-            strategy = "Do not stake your future purely on repeated NEET attempts. Explore Allied Health Sciences, B.Pharm, or B.Sc Biotechnology where biological passion translates into immediate career security.";
-        }
-    } else if (stream.includes("Commerce")) {
-        if (tierKey === "high") {
-            reality = `Top commerce colleges (SRCC, Hindu College, St. Xavier's) require 98%+ in CUET UG or high board marks. Your academic standing positions you well for elite Tier-1 institutions.`;
-            pathways = [
-                { title: "CUET Top-Tier B.Com (Hons)", desc: "Target North Campus DU and premier central universities with targeted CUET subject prep." },
-                { title: "Professional Dual-Track (CA / CFA)", desc: "Register for ICAI CA Foundation or begin CFA Level 1 alongside your undergraduate degree." }
-            ];
-            strategy = "Aim for top CUET commerce programs while beginning foundational preparation for CA or CFA.";
-        } else {
-            reality = `While 99% board cutoffs for elite colleges make traditional admissions challenging, modern finance and corporate business prioritize financial modeling skills, Excel/SQL competence, and professional certifications over college brand.`;
-            pathways = [
-                { title: "Smart Route A: BBA / BMS via University Aptitude", desc: "Management programs admitted via CUET or private university entrance tests. Focuses on entrepreneurship, marketing, and corporate internships." },
-                { title: "Smart Route B: B.Com + Global Certifications (ACCA / US CMA)", desc: "International credentials like ACCA or CMA evaluate practical financial competence directly, granting global placement eligibility regardless of college tier." },
-                { title: "Smart Route C: B.Voc in Banking & Financial Services (BFSI)", desc: "Vocational degree with 60% industry apprentice training and direct tie-ups with leading private banks." }
-            ];
-            strategy = "Enroll in a reputable BBA or B.Com program and immediately layer on professional certifications (CMA, ACCA, or Financial Modeling) to surpass college cutoff limitations.";
-        }
-    } else {
-        reality = `In Design, Media, UI/UX, and Liberal Arts, academic board percentages account for less than 25% of admissions decisions! Top design schools (NID, UCEED, private design institutes) base selection 75%+ on visual aptitude, portfolio showcases, and creative intuition.`;
+        reality = `Premier engineering institutions (IITs, NITs, IIITs, BITS) for ${degName} admit via JEE Mains, JEE Advanced, and BITSAT (>98th percentile). State government engineering colleges admit through State CETs (e.g. GUJCET, MHT-CET) with reserved state domicile quotas.`;
         pathways = [
-            { title: "Smart Route A: Creative Portfolio & Aptitude Entrances (UCEED, NID DAT)", desc: "A student with a 62% board score and a compelling design portfolio will consistently win admission over a 95% scorer with no creative work." },
-            { title: "Smart Route B: 5-Year Integrated Law (BA LLB / BBA LLB)", desc: "Admissions through CLAT or State Law CETs measure logical reasoning and legal aptitude, with board marks serving merely as a basic 45-50% eligibility cutoff." },
-            { title: "Smart Route C: Digital Media & UI/UX Product Design Bootcamps", desc: "Direct project-based admissions into modern digital design academies, leading directly to tech product design roles." }
+            { 
+                title: "Route A: Direct-Entry BCA (Bachelor of Computer Applications) / B.Sc IT", 
+                desc: "Admits directly on 12th board aggregate with zero entrance exam stress. You master programming, databases, and software development from Day 1, with direct tech campus placements or MCA eligibility." 
+            },
+            { 
+                title: "Route B: Polytechnic 3-Year Diploma ➔ B.Tech Lateral Entry", 
+                desc: "Hands-on engineering diploma admitting directly into the 2nd year of B.Tech engineering, completely bypassing 11th/12th board pressure." 
+            },
+            { 
+                title: "Route C: University Holistic Entrances (CUET UG)", 
+                desc: "Central and reputable private universities evaluate logical intuition and general aptitude rather than high-stress negative-marking ranks." 
+            }
         ];
-        strategy = "Focus your energy on building a compelling portfolio (Figma, sketches, writing samples) and practicing design/law aptitude tests. Your board percentage is only a basic eligibility check.";
-    }
-
-    if (is10th && (tierKey === "moderate" || tierKey === "foundational")) {
-        reality = `Choosing high-stress 11th Science (PCM) under peer pressure often leads to heavy tuition burdens and high failure rates. If you love tech or computers, you do NOT have to struggle through 11th Chemistry and Physics!`;
-        pathways.unshift({
-            title: "Empowering 10th Path: Polytechnic Diploma in Computer Engineering",
-            desc: "Begin software and computer systems immediately after 10th. After 3 years, you enter B.Tech 2nd year directly via lateral entry, bypassing 11th/12th board pressure completely!"
-        });
-        pathways.splice(1, 0, {
-            title: "Empowering 10th Path: Commerce with Informatics Practices",
-            desc: "Allows direct admission into BCA (Bachelor of Computer Applications) in college, giving you a complete software engineering career without high-stress PCM."
-        });
-    }
-
-    let badgeLabel = tierBadges[tierKey] || "Aptitude-First Assessment";
-    if (sessionState.score_raw && tierKey !== "passion_first") {
-        badgeLabel += ` • Student Score: ${sessionState.score_raw}`;
+        if (is10th) {
+            pathways.unshift({
+                title: "Empowering 10th Option: Polytechnic Diploma in Computer Engineering",
+                desc: "Begin software and computer systems immediately after 10th. After 3 years, you enter B.Tech 2nd year directly via lateral entry, bypassing 11th/12th board pressure completely!"
+            });
+        }
+        strategy = "Pursue Tier-1 national exams while keeping direct-applied alternatives (BCA/State CET) as your secure launchpad to build practical coding capability with zero stress.";
+    } else if (stream.includes("PCB") || stream.includes("Science (PCB)")) {
+        reality = `Government medical seats (MBBS/BDS) require qualifying NEET-UG with high national percentiles (>99th percentile for government colleges). Preparation requires rigorous mastery of NCERT biology, chemistry, and physics.`;
+        pathways = [
+            { 
+                title: "Route A: B.Sc in Biotechnology & Bioinformatics", 
+                desc: "The fastest-growing segment of healthcare (14% CAGR in genomics and precision medicine). Admits via 12th marks or CUET with zero NEET gatekeeping." 
+            },
+            { 
+                title: "Route B: Allied Health Sciences (Radiology, Medical Lab Technology, Anesthesia)", 
+                desc: "Hospital clinical operations depend on diagnostic specialists. 100% placement demand with immediate career security." 
+            },
+            { 
+                title: "Route C: B.Pharm (Bachelor of Pharmacy)", 
+                desc: "Direct admission via State CET or 12th marks. Opens high-paying pathways into drug discovery, clinical trials, and pharmaceutical formulations." 
+            }
+        ];
+        strategy = "Do not stake your future purely on repeated NEET drop years. Pair medical aspirations with high-growth healthcare alternatives (Biotechnology, B.Pharm, Allied Health) for secure outcomes.";
+    } else if (stream.includes("Commerce")) {
+        reality = `Premier commerce and economics colleges (SRCC, St. Xavier's, DU North Campus) admit through CUET UG with high percentiles. Professional accounting tracks (CA Foundation, CMA) are administered directly by ICAI/ICMAI.`;
+        pathways = [
+            { 
+                title: "Route A: BBA Analytics / Financial Markets", 
+                desc: "Practical management programs admitted via CUET or university aptitude tests. Focuses on entrepreneurship, business analytics, and corporate internships." 
+            },
+            { 
+                title: "Route B: B.Com + Global Professional Credentials (US CMA / ACCA)", 
+                desc: "International credentials evaluating practical financial competence directly, granting global placement eligibility." 
+            },
+            { 
+                title: "Route C: B.Voc in Banking & Financial Services (BFSI)", 
+                desc: "Vocational degree with 60% industry apprentice training and direct tie-ups with leading private banks." 
+            }
+        ];
+        strategy = "Enroll in a reputable BBA or B.Com program and layer on professional certifications (CMA, ACCA, or Financial Modeling) to transcend college cutoff limitations.";
+    } else {
+        reality = `Premier design, media, and law institutions (UCEED, NID DAT, CLAT, CUET UG) evaluate creative portfolio intuition, visual aptitude, and critical thinking rather than traditional board marks.`;
+        pathways = [
+            { 
+                title: "Route A: Creative Portfolio Entrances (UCEED, NID DAT)", 
+                desc: "Visual storytelling, digital sketches, and design thinking carry 75%+ weight over board scores. A strong portfolio consistently secures admissions." 
+            },
+            { 
+                title: "Route B: 5-Year Integrated Law (BA LLB / BBA LLB via CLAT)", 
+                desc: "Admissions through CLAT or State Law CETs measure logical reasoning and legal aptitude, with board marks serving merely as a basic eligibility cutoff." 
+            },
+            { 
+                title: "Route C: Digital Media & UI/UX Product Design Academies", 
+                desc: "Direct project-based admissions into modern digital academies, leading directly to tech product design and digital media roles." 
+            }
+        ];
+        strategy = "Focus your energy on building a compelling portfolio (Figma, sketches, writing samples) and practicing design aptitude tests. Your creative work is your real credential.";
     }
 
     return {
-        tier_badge: badgeLabel,
-        tier_key: tierKey,
+        tier_badge: "Aptitude-First Advisory",
         reality_check: reality,
         smart_pathways: pathways,
         recommended_strategy: strategy
     };
 }
-
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 10. AI Reasoning & Telemetry Rendering (XAI)
-// ─────────────────────────────────────────────────────────────────────────────
 
 function updateExaminerTelemetry(telemetry) {
     if (!telemetry) return;
@@ -1162,8 +1132,8 @@ function printDossier() {
     const oldTitle = document.title;
     const degName = (latestDossierReport && latestDossierReport.primary_degree_name)
         ? latestDossierReport.primary_degree_name.replace(/[^a-zA-Z0-9]/g, "_")
-        : "Admissions_Dossier";
-    document.title = `CareerSaathi_Admissions_Dossier_${degName}`;
+        : "Admissions_Report";
+    document.title = `CareerSaathi_Admissions_Report_${degName}`;
     
     window.print();
     

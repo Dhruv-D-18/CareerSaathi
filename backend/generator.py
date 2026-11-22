@@ -637,7 +637,7 @@ def get_broad_horizon_closure_message(education_level: str, is_10th: bool, recs:
         f"1. **{r1_title}** (`{rec1['fit_score']}% Exploratory Fit`) — *Keeps maximum engineering, tech, and analytical options open*\n"
         f"2. **{r2_title}** (`{rec2['fit_score']}% Exploratory Fit`) — *Versatile foundation in applied business, economics, and real-world strategy*\n"
         f"3. **{r3_title}** (`{rec3['fit_score']}% Exploratory Fit`) — *Creative and multidisciplinary freedom without rigid silos*\n\n"
-        f"I have prepared your full **Broad Horizon Discovery Dossier** in the side pane. "
+        f"I have prepared your full **Broad Horizon Discovery Report** in the side pane. "
         f"Rather than stressful entrance exam cutoffs, it includes **low-stakes weekend micro-experiments** to help you test what excites you hands-on!"
     )
     return closure

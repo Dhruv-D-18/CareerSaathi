@@ -67,7 +67,7 @@
 
             <div class="nav-right">
                 <button class="btn-dossier-pill hidden" id="open-dossier-btn" onclick="toggleArtifactPane(true)">
-                    <span>📄 View Admissions Dossier</span>
+                    <span>📄 View Admissions Report</span>
                     <span class="sparkle-icon">↗</span>
                 </button>
                 <button class="btn-telemetry-toggle" id="examiner-mode-btn" onclick="toggleExaminerMode()" title="Toggle Live AI Reasoning & Telemetry (XAI)">
@@ -150,12 +150,12 @@
                     <div class="docked-bar-left">
                         <span class="docked-bar-icon" id="docked-bar-icon">📄</span>
                         <div class="docked-bar-text">
-                            <span class="docked-title" id="docked-title">CareerSaathi Admissions Dossier Ready</span>
+                            <span class="docked-title" id="docked-title">CareerSaathi Admissions Report Ready</span>
                             <span class="docked-subtitle" id="docked-subtitle">Click to view side-by-side recommendation & RIASEC profile</span>
                         </div>
                     </div>
                     <button type="button" class="btn-docked-open" id="btn-docked-open">
-                        <span id="docked-btn-text">View Dossier</span>
+                        <span id="docked-btn-text">View Report</span>
                         <span class="docked-arrow">↗</span>
                     </button>
                 </div>
@@ -184,7 +184,7 @@
                 <div class="artifact-window-header">
                     <div class="artifact-tabs-group">
                         <button class="artifact-tab-btn active" id="tab-student-dossier" onclick="switchArtifactTab('student')">
-                            <span>🎓 Admissions Dossier</span>
+                            <span>🎓 Admissions Report</span>
                         </button>
                         <button class="artifact-tab-btn" id="tab-examiner-xai" onclick="switchArtifactTab('examiner')">
                             <span class="pulse-dot-red"></span>
@@ -209,10 +209,10 @@
                         <div class="print-report-header">
                             <div class="print-univ-col">
                                 <h1 class="print-univ-title">CAREERSAATHI ADMISSIONS & CAREER ADVISORY</h1>
-                                <p class="print-univ-sub">CareerSaathi™ Cognitive Career & Stream Advisory Dossier</p>
+                                <p class="print-univ-sub">CareerSaathi™ Cognitive Career & Stream Advisory Report</p>
                             </div>
                             <div class="print-doc-meta">
-                                <span class="print-badge">OFFICIAL ADMISSIONS DOSSIER</span>
+                                <span class="print-badge">OFFICIAL ADMISSIONS REPORT</span>
                                 <span class="print-confidential">Confidential Student Career Roadmap</span>
                             </div>
                         </div>
@@ -320,42 +320,30 @@
                             </div>
                         </div>
 
-                        <!-- ── SECTION 2: EMPATHETIC REALISM: ACADEMIC FEASIBILITY & SMART PATHWAYS ── -->
+                        <!-- ── SECTION 2: ACADEMIC FEASIBILITY & FLEXIBLE GATEWAYS ── -->
                         <div class="dossier-card feasibility-matrix-card">
                             <div class="feasibility-card-top">
                                 <div>
-                                    <h3 class="card-heading-serif">Academic Feasibility & Smart Pathway Advisory</h3>
-                                    <p class="card-caption">Empathetic realism: Honest cutoff awareness paired with high-upside alternative routes</p>
+                                    <h3 class="card-heading-serif">Academic Feasibility & Flexible Gateways</h3>
+                                    <p class="card-caption">Empathetic admission roadmap: Premier national competitive routes alongside stress-free applied alternatives</p>
                                 </div>
-                                <span class="feasibility-tier-badge" id="feasibility-tier-badge">Aptitude-First Assessment</span>
+                                <span class="feasibility-tier-badge" id="feasibility-tier-badge">Aptitude-First Advisory</span>
                             </div>
 
-                            <!-- Interactive Score Tier Filter -->
-                            <div class="score-tier-filter-row">
-                                <span class="filter-label">Explore Score Scenario:</span>
-                                <div class="tier-buttons-group">
-                                    <button type="button" class="tier-btn" data-tier="high" onclick="applyScoreTier('high')">⭐ 85%+ High Target</button>
-                                    <button type="button" class="tier-btn" data-tier="competitive" onclick="applyScoreTier('competitive')">🎯 70% – 85% Competitive</button>
-                                    <button type="button" class="tier-btn" data-tier="moderate" onclick="applyScoreTier('moderate')">💡 55% – 70% Smart Pathways</button>
-                                    <button type="button" class="tier-btn" data-tier="foundational" onclick="applyScoreTier('foundational')">🌱 Under 55%</button>
-                                    <button type="button" class="tier-btn active" data-tier="passion_first" onclick="applyScoreTier('passion_first')">🔓 Passion-First</button>
-                                </div>
-                            </div>
-
-                            <!-- Honest Reality Check (No Sugarcoating) -->
+                            <!-- Pathway 1: Tier-1 National Competitive Entrances -->
                             <div class="reality-check-panel">
                                 <div class="reality-header">
-                                    <span class="reality-icon">📋</span>
-                                    <strong>Cutoff Reality Check (No Sugarcoating)</strong>
+                                    <span class="reality-icon">🏛️</span>
+                                    <strong>Pathway 1: Tier-1 National Competitive Entrances</strong>
                                 </div>
                                 <p id="feasibility-reality-text">Entrance cutoffs for premier Tier-1 government institutions require top national percentiles. Evaluating options with balanced perspective prevents high-stress burnout.</p>
                             </div>
 
-                            <!-- Smart Gateways (No Demotivation) -->
+                            <!-- Pathway 2: Direct Applied & Skill-Driven Gateways -->
                             <div class="smart-gateways-panel">
                                 <div class="gateways-header">
                                     <span class="gateways-icon">🚀</span>
-                                    <strong>Smart Alternative Gateways & Backdoor Entries (No Demotivation)</strong>
+                                    <strong>Pathway 2: Direct Applied & Skill-Driven Gateways</strong>
                                 </div>
                                 <div class="gateways-list" id="feasibility-gateways-list">
                                     <!-- Dynamic smart pathways injected here -->
@@ -387,7 +375,7 @@
                             </div>
                             <div class="recal-buttons-row">
                                 <button class="btn-outline-recal" onclick="triggerRecalibration()">
-                                    <span>🔄 I didn't like this suggestion — Let's refine</span>
+                                    <span>🔄 Refine</span>
                                 </button>
                                 <button class="btn-text-review" onclick="focusChatForReview()">
                                     <span>← Review Full Conversation History</span>

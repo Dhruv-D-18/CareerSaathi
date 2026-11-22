@@ -615,28 +615,28 @@ def apply_negative_feedback(current_scores: Dict[str, float], rejection_text: st
     excluded_ids = []
     
     # 1. Negative rules for Commerce / Finance / Accounting
-    if any(k in text_lower for k in ["ca", "account", "commerce", "finance", "audit", "tax", "spreadsheet", "balance sheet", "stock market", "fintech"]):
+    if any(re.search(rf"\b{re.escape(k)}\b", text_lower) for k in ["ca", "account", "commerce", "finance", "audit", "tax", "spreadsheet", "balance sheet", "stock market", "fintech"]):
         updated["C"] = max(2.0, updated.get("C", 16.7) * 0.3)
         updated["E"] = max(4.0, updated.get("E", 16.7) * 0.6)
         excluded_ids.extend(["ca_bcom", "bba_analytics", "bcom_fintech", "actuarial_science", "cs_corporate_law", "cma_cost_accounting"])
         
     # 2. Negative rules for Biology / Medical / Healthcare
-    if any(k in text_lower for k in ["bio", "biology", "medical", "doctor", "hospital", "patient", "clinic", "life science", "pharma"]):
+    if any(re.search(rf"\b{re.escape(k)}\b", text_lower) for k in ["bio", "biology", "medical", "doctor", "hospital", "patient", "clinic", "life science", "pharma"]):
         updated["S"] = max(4.0, updated.get("S", 16.7) * 0.6)
         excluded_ids.extend(["mbbs_healthcare", "bsc_lifesciences", "b_pharm", "bpt_physiotherapy", "bvsc_veterinary", "bds_dental", "bsc_nursing", "ayush_medicine", "allied_health"])
         
     # 3. Negative rules for Coding / Software / Engineering
-    if any(k in text_lower for k in ["coding", "code", "software", "programming", "screen all day", "sit at desk"]):
+    if any(re.search(rf"\b{re.escape(k)}\b", text_lower) for k in ["coding", "code", "software", "programming", "screen all day", "sit at desk"]):
         updated["I"] = max(4.0, updated.get("I", 16.7) * 0.4)
         excluded_ids.extend(["btech_cs", "bsc_datascience"])
         
     # 4. Negative rules for Heavy Hardware / Mechanical / Defense
-    if any(k in text_lower for k in ["hardware", "mechanic", "tools", "machine", "grease", "factory"]):
+    if any(re.search(rf"\b{re.escape(k)}\b", text_lower) for k in ["hardware", "mechanic", "tools", "machine", "grease", "factory"]):
         updated["R"] = max(4.0, updated.get("R", 16.7) * 0.3)
         excluded_ids.extend(["btech_mech", "btech_robotics", "btech_civil", "btech_chemical"])
         
     # 5. Negative rules for Pure Arts / Design / Writing
-    if any(k in text_lower for k in ["art", "sketch", "drawing", "writing", "literature", "history", "fashion"]):
+    if any(re.search(rf"\b{re.escape(k)}\b", text_lower) for k in ["art", "sketch", "drawing", "writing", "literature", "history", "fashion"]):
         updated["A"] = max(3.0, updated.get("A", 16.7) * 0.3)
         excluded_ids.extend(["bdes_uiux", "bdes_fashion", "ba_psychology", "ba_economics", "ballb_law", "bjmc_media", "bsc_animation_vfx", "ba_public_admin"])
 
@@ -1134,226 +1134,129 @@ def generate_cognitive_journey_report(scores: Dict[str, float], user_text: str, 
 
 def generate_academic_feasibility_matrix(degree: Dict, score_tier: str = "passion_first", is_10th: bool = False, raw_score: str = "") -> Dict:
     """
-    Empathetic Realism Matrix:
-    Provides honest cutoff facts without sugarcoating, paired with empowering 'smart backdoor'
-    and alternative gateways so students are never demoralized or gatekept.
+    Academic Feasibility & Flexible Gateways (Option A Architecture):
+    Presents Tier-1 National Competitive Entrances alongside stress-free Direct Applied Alternatives
+    side-by-side with zero score gatekeeping or percentage anxiety.
     """
-    deg_id = degree.get("id", "")
     deg_name = degree.get("degree", "Degree")
     stream = degree.get("stream", "General")
-    clean_tier = score_tier.lower() if score_tier else "passion_first"
     
-    # Map tier badge labels
-    tier_badges = {
-        "high": "Above 85% / High Percentile (Tier-1 Target)",
-        "competitive": "70% – 85% / Competitive Range",
-        "moderate": "55% – 70% / Moderate (Focus on Smart Pathways)",
-        "foundational": "Under 55% / Foundational Band",
-        "passion_first": "Aptitude-First Assessment (Unrestricted)"
-    }
-    tier_label = tier_badges.get(clean_tier, "Aptitude-First Assessment")
-    if raw_score and clean_tier != "passion_first":
-        tier_label += f" • Student Score: {raw_score}"
-    
-    # Default fallbacks
+    tier_label = "Aptitude-First Advisory"
     reality_check = ""
     smart_pathways = []
     recommended_strategy = ""
     
-    # ── DOMAIN 1: SCIENCE PCM (B.Tech, Computing, Math, Aerospace, Robotics) ────
-    if stream == "Science (PCM)":
-        if clean_tier == "high":
-            reality_check = (
-                f"For {deg_name}, premier institutions (IITs, NITs, BITS) require top 2% national rank in JEE Mains "
-                f"or BITSAT (>98.5 percentile). Your score profile indicates strong foundational capability to compete at this level."
-            )
-            smart_pathways = [
-                {"title": "Tier-1 National Roadmaps", "desc": "Focus rigorously on JEE Advanced and BITSAT with high-yield timed mock test analysis."},
-                {"title": "Premier State Engineering Quota", "desc": "Target top government state colleges via State CET as a high-ROI safety net."}
-            ]
-            recommended_strategy = "Pursue Tier-1 JEE/BITSAT preparation while keeping premier state university CET counseling as your secure backup."
-            
-        elif clean_tier == "competitive":
-            reality_check = (
-                f"Tier-1 IIT/NIT seats for {deg_name} remain hyper-competitive, but reputable state government engineering colleges "
-                f"and premier private universities (via CET, COMEDK, VITEEE, MET) are well within your reach."
-            )
-            smart_pathways = [
-                {"title": "State Engineering Merit Seats", "desc": "Top state engineering colleges offer identical campus placements with major tech firms at a fraction of Tier-1 stress."},
-                {"title": "Specialized Emerging Branches", "desc": "Branches like AI/Data Science, Mechatronics, or IoT often have slightly more accessible cutoffs than legacy CSE, with equal tech placement access."}
-            ]
-            recommended_strategy = "Target State CET and university-specific entrance exams where your score tier provides strong seat security."
-            
-        elif clean_tier in ["moderate", "foundational"]:
-            reality_check = (
-                f"National entrance exams like JEE Mains feature intense competition (>14 lakh aspirants). "
-                f"Rushing into high-cost multi-year coaching can lead to academic burnout. However, modern technology careers "
-                f"are strictly skill-driven, not degree-monopolized."
-            )
-            smart_pathways = [
-                {
-                    "title": "Smart Route A: BCA (Bachelor of Computer Applications)",
-                    "desc": "Admits directly on 50%+ 12th board aggregate with ZERO JEE stress. You learn programming, databases, and web/mobile development from Day 1. Tech majors (TCS, Infosys, Deloitte, startups) hire directly, or you can pursue MCA for complete parity with B.Tech CSE."
-                },
-                {
-                    "title": "Smart Route B: Polytechnic Diploma ➔ B.Tech Lateral Entry",
-                    "desc": "Hands-on 3-year technical diploma admitting directly into the 2nd year of B.Tech engineering, completely bypassing 11th/12th board stress."
-                },
-                {
-                    "title": "Smart Route C: University Holistic Entrances (CUET UG)",
-                    "desc": "Private and state universities admitting through CUET UG or aptitude exams evaluate problem-solving intuition rather than brutal negative-marking JEE ranks."
-                }
-            ]
-            recommended_strategy = (
-                "Avoid high-stress repeat years for JEE. Opt for direct-entry BCA, B.Sc Computer Science, or lateral diploma routes "
-                "where you begin software coding immediately and build an industry portfolio."
-            )
-        else: # passion_first
-            reality_check = (
-                f"Admission to {deg_name} ranges from Tier-1 competitive exams (JEE/BITSAT) to flexible aptitude-based university entrances (CUET UG). "
-                f"Eligibility typically requires 50-60% aggregate in Physics, Chemistry, and Mathematics."
-            )
-            smart_pathways = [
-                {"title": "Dual Pathway Strategy", "desc": "Balance high-reach national entrance tests (JEE) with flexible private/state university entrance tests."},
-                {"title": "Applied BCA / B.Sc IT Alternative", "desc": "Direct software coding pathway requiring only passing marks in board examinations."}
-            ]
-            recommended_strategy = "Evaluate whether you thrive in high-pressure mathematical exam speed (B.Tech) or prefer project-driven software development (BCA)."
-
-    # ── DOMAIN 2: SCIENCE PCB (Medicine, Dentistry, Biotech, Pharmacy) ──────────
-    elif stream == "Science (PCB)":
-        if clean_tier == "high":
-            reality_check = (
-                f"Government medical seats (MBBS) require 620-680+ marks in NEET (>99th percentile). "
-                f"Your academic profile gives you the foundational stamina needed for top medical ranks."
-            )
-            smart_pathways = [
-                {"title": "All-India & State NEET Counseling", "desc": "Focus on high-speed NCERT biology and chemistry revision to secure government medical colleges."},
-                {"title": "Top Biotechnology Research Institutes", "desc": "Target IISERs, NISER, and central universities for high-impact biological research."}
-            ]
-            recommended_strategy = "Aim for NEET government quota while keeping BDS and B.Sc Biotechnology in central universities as contingencies."
-            
-        elif clean_tier in ["moderate", "foundational", "competitive"]:
-            reality_check = (
-                f"Government MBBS seats face extreme scarcity (>24 lakh applicants for ~55,000 government seats). "
-                f"Taking 2-3 dropper years for NEET carries immense emotional exhaustion with no guaranteed outcome."
-            )
-            smart_pathways = [
-                {
-                    "title": "Smart Route A: B.Sc in Biotechnology / Bioinformatics",
-                    "desc": "The fastest-growing segment of healthcare (14% CAGR in genomics, precision medicine, and vaccine tech). Admits via 12th marks or CUET with zero NEET gatekeeping."
-                },
-                {
-                    "title": "Smart Route B: Allied Health Sciences (Radiology, Lab Tech, Anesthesia)",
-                    "desc": "Hospital operations depend on specialized diagnostic technologists. 100% campus placement demand with immediate career security and clinical impact."
-                },
-                {
-                    "title": "Smart Route C: B.Pharm (Bachelor of Pharmacy)",
-                    "desc": "Direct admission via board scores or State CET. Opens high-paying pathways into drug discovery, clinical trials management, and pharma entrepreneurship."
-                }
-            ]
-            recommended_strategy = (
-                "Do not stake your future purely on repeated NEET attempts. Explore Allied Health Sciences, B.Pharm, "
-                "or B.Sc Biotechnology where your biological passion translates into immediate professional demand."
-            )
-        else:
-            reality_check = f"Healthcare pathways range from clinical doctorates (NEET-dependent) to allied health and biotech research (CUET/Board marks)."
-            smart_pathways = [
-                {"title": "Clinical vs. Allied Health", "desc": "Compare clinical patient care (MBBS/BDS) with high-demand diagnostic technology (B.Sc Allied Health)."},
-                {"title": "Biotech & Pharma Roadmaps", "desc": "High-growth biotechnology careers with direct board-merit admissions."}
-            ]
-            recommended_strategy = "Select based on whether you want patient-facing clinical responsibility or laboratory research."
-
-    # ── DOMAIN 3: COMMERCE & FINANCE (B.Com, BBA, CA, FinTech, Economics) ─────
-    elif stream == "Commerce & Finance":
-        if clean_tier == "high":
-            reality_check = (
-                f"Top commerce colleges (SRCC, Hindu College, St. Xavier's) require 98%+ in CUET UG or high board marks. "
-                f"Your academic standing positions you well for elite Tier-1 institutions."
-            )
-            smart_pathways = [
-                {"title": "CUET Top-Tier B.Com (Hons)", "desc": "Target North Campus DU and premier central universities with targeted CUET subject prep."},
-                {"title": "Professional Dual-Track (CA / CFA)", "desc": "Register for ICAI CA Foundation or begin CFA Level 1 alongside your undergraduate degree."}
-            ]
-            recommended_strategy = "Aim for top CUET commerce programs while beginning foundational preparation for CA or CFA."
-            
-        elif clean_tier in ["moderate", "foundational", "competitive"]:
-            reality_check = (
-                f"While 99% board cutoffs for elite colleges make traditional admissions challenging, modern finance and corporate business "
-                f"prioritize financial modeling skills, Excel/SQL competence, and professional certifications over college brand."
-            )
-            smart_pathways = [
-                {
-                    "title": "Smart Route A: BBA / BMS via University Aptitude",
-                    "desc": "Management programs admitted via CUET or private university entrance tests. Focuses on entrepreneurship, marketing, and corporate internships."
-                },
-                {
-                    "title": "Smart Route B: B.Com + Global Certifications (ACCA / US CMA)",
-                    "desc": "International credentials like ACCA or CMA evaluate practical financial competence directly, granting global placement eligibility regardless of college tier."
-                },
-                {
-                    "title": "Smart Route C: B.Voc in Banking & Financial Services (BFSI)",
-                    "desc": "Vocational degree with 60% industry apprentice training and direct tie-ups with leading private banks."
-                }
-            ]
-            recommended_strategy = (
-                "Enroll in a reputable BBA or B.Com program and immediately layer on professional certifications (CMA, ACCA, or Financial Modeling) "
-                "to surpass college cutoff limitations."
-            )
-        else:
-            reality_check = f"Commerce degrees offer flexible admission paths ranging from CUET UG to direct board-merit seats."
-            smart_pathways = [
-                {"title": "Corporate Management (BBA)", "desc": "Practical leadership and startup-focused curriculum."},
-                {"title": "Professional Finance Track", "desc": "B.Com paired with CA, CS, or CMA credentials."}
-            ]
-            recommended_strategy = "Choose between corporate management leadership (BBA) or technical financial accounting (B.Com/CA)."
-
-    # ── DOMAIN 4: LIBERAL STUDIES & ARTS (Design, UI/UX, Law, Media, Psychology)
-    else:
+    # ── DOMAIN 1: SCIENCE PCM ───────────────────────────────────────────────
+    if "PCM" in stream:
         reality_check = (
-            f"In Design, Media, UI/UX, and Liberal Arts, **academic board percentages account for less than 25% of admissions decisions**! "
-            f"Top design schools (NID, UCEED, private design institutes) and media schools base selection 75%+ on visual aptitude, portfolio showcases, and creative intuition."
+            f"Premier engineering institutions (IITs, NITs, IIITs, BITS) for {deg_name} admit via JEE Mains, "
+            f"JEE Advanced, and BITSAT (>98th percentile). State government engineering colleges admit through "
+            f"State CETs (such as GUJCET, MHT-CET) with reserved state domicile quotas."
         )
         smart_pathways = [
             {
-                "title": "Smart Route A: Creative Portfolio & Aptitude Entrances (UCEED, NID DAT)",
-                "desc": "A student with a 62% board score and a compelling design portfolio will consistently win admission over a 95% scorer with no creative work."
+                "title": "Route A: Direct-Entry BCA (Bachelor of Computer Applications) / B.Sc IT",
+                "desc": "Admits directly on 12th board aggregate with zero entrance exam stress. You master programming, databases, and software development from Day 1, with direct tech placements or MCA eligibility."
             },
             {
-                "title": "Smart Route B: 5-Year Integrated Law (BA LLB / BBA LLB)",
-                "desc": "Admissions through CLAT, AILET, or State Law CETs measure logical reasoning and legal aptitude, with board marks serving merely as a basic 45-50% eligibility cutoff."
+                "title": "Route B: Polytechnic 3-Year Diploma ➔ B.Tech Lateral Entry",
+                "desc": "Hands-on engineering diploma admitting directly into the 2nd year of B.Tech engineering, completely bypassing 11th/12th board pressure."
             },
             {
-                "title": "Smart Route C: Digital Media & UI/UX Product Design Bootcamps",
-                "desc": "Direct project-based admissions into modern digital design academies, leading directly to tech product design roles."
+                "title": "Route C: University Holistic Entrances (CUET UG)",
+                "desc": "Central and reputable private universities evaluate problem-solving intuition and logical aptitude rather than high-stress negative-marking ranks."
+            }
+        ]
+        if is_10th:
+            smart_pathways.insert(0, {
+                "title": "Empowering 10th Option: Polytechnic Diploma in Computer Engineering",
+                "desc": "Begin software and computer systems immediately after 10th. After 3 years, you enter B.Tech 2nd year directly via lateral entry, bypassing 11th/12th board pressure completely!"
+            })
+        recommended_strategy = (
+            "Pursue Tier-1 national exams while keeping direct-applied alternatives (BCA/State CET) as your secure "
+            "launchpad to build practical coding capability with zero stress."
+        )
+
+    # ── DOMAIN 2: SCIENCE PCB ───────────────────────────────────────────────
+    elif "PCB" in stream:
+        reality_check = (
+            f"Government medical seats (MBBS/BDS) require qualifying NEET-UG with high national percentiles "
+            f"(>99th percentile for government colleges). Preparation requires rigorous mastery of NCERT biology, chemistry, and physics."
+        )
+        smart_pathways = [
+            {
+                "title": "Route A: B.Sc in Biotechnology & Bioinformatics",
+                "desc": "The fastest-growing segment of healthcare (14% CAGR in genomics and precision medicine). Admits via 12th marks or CUET with zero NEET gatekeeping."
+            },
+            {
+                "title": "Route B: Allied Health Sciences (Radiology, Medical Lab Technology, Anesthesia)",
+                "desc": "Hospital clinical operations depend on diagnostic specialists. 100% placement demand with immediate career security."
+            },
+            {
+                "title": "Route C: B.Pharm (Bachelor of Pharmacy)",
+                "desc": "Direct admission via State CET or 12th marks. Opens high-paying pathways into drug discovery, clinical trials, and pharmaceutical formulations."
             }
         ]
         recommended_strategy = (
-            "Focus your energy on building a compelling portfolio (Figma, sketches, writing samples) and practicing design/law aptitude tests. "
-            "Your board percentage is only a basic eligibility check."
+            "Do not stake your future purely on repeated NEET drop years. Pair medical aspirations with high-growth healthcare "
+            "alternatives (Biotechnology, B.Pharm, Allied Health) for secure outcomes."
         )
 
-    # 10th Standard Specific Empathy Note
-    if is_10th:
-        if clean_tier in ["moderate", "foundational"]:
-            reality_check = (
-                f"Choosing high-stress 11th Science (PCM) under peer pressure often leads to heavy tuition burdens and high failure rates. "
-                f"If you love tech or computers, you do NOT have to struggle through 11th Chemistry and Physics!"
-            )
-            smart_pathways.insert(0, {
-                "title": "Empowering 10th Path: Polytechnic Diploma in Computer Engineering",
-                "desc": "Begin software and computer systems immediately after 10th. After 3 years, you enter B.Tech 2nd year directly via lateral entry, bypassing 11th/12th board pressure completely!"
-            })
-            smart_pathways.insert(1, {
-                "title": "Empowering 10th Path: Commerce with Informatics Practices",
-                "desc": "Allows direct admission into BCA (Bachelor of Computer Applications) in college, giving you a complete software engineering career without high-stress PCM."
-            })
+    # ── DOMAIN 3: COMMERCE & FINANCE ────────────────────────────────────────
+    elif "Commerce" in stream:
+        reality_check = (
+            f"Premier commerce and economics colleges (SRCC, St. Xavier's, DU North Campus) admit through "
+            f"CUET UG with high percentiles. Professional accounting tracks (CA Foundation, CMA) are administered directly by ICAI/ICMAI."
+        )
+        smart_pathways = [
+            {
+                "title": "Route A: BBA Analytics / Financial Markets",
+                "desc": "Practical management programs admitted via CUET or university aptitude tests. Focuses on entrepreneurship, business analytics, and corporate internships."
+            },
+            {
+                "title": "Route B: B.Com + Global Professional Credentials (US CMA / ACCA)",
+                "desc": "International credentials evaluating practical financial competence directly, granting global placement eligibility."
+            },
+            {
+                "title": "Route C: B.Voc in Banking & Financial Services (BFSI)",
+                "desc": "Vocational degree with 60% industry apprentice training and direct tie-ups with leading private banks."
+            }
+        ]
+        recommended_strategy = (
+            "Enroll in a reputable BBA or B.Com program and layer on professional certifications (CMA, ACCA, or Financial Modeling) "
+            "to transcend college cutoff limitations."
+        )
+
+    # ── DOMAIN 4: LIBERAL STUDIES & ARTS ────────────────────────────────────
+    else:
+        reality_check = (
+            f"Premier design, media, and law institutions (UCEED, NID DAT, CLAT, CUET UG) evaluate creative portfolio "
+            f"intuition, visual aptitude, and critical thinking rather than traditional board marks."
+        )
+        smart_pathways = [
+            {
+                "title": "Route A: Creative Portfolio Entrances (UCEED, NID DAT)",
+                "desc": "Visual storytelling, digital sketches, and design thinking carry 75%+ weight over board scores. A strong portfolio consistently secures admissions."
+            },
+            {
+                "title": "Route B: 5-Year Integrated Law (BA LLB / BBA LLB via CLAT)",
+                "desc": "Admissions through CLAT or State Law CETs measure logical reasoning and legal aptitude, with board marks serving merely as a basic eligibility cutoff."
+            },
+            {
+                "title": "Route C: Digital Media & UI/UX Product Design Academies",
+                "desc": "Direct project-based admissions into modern digital academies, leading directly to tech product design and digital media roles."
+            }
+        ]
+        recommended_strategy = (
+            "Focus your energy on building a compelling portfolio (Figma, sketches, writing samples) and practicing design aptitude tests. "
+            "Your creative work is your real credential."
+        )
 
     return {
         "tier_badge": tier_label,
-        "tier_key": clean_tier,
+        "tier_key": "passion_first",
         "raw_score": raw_score,
         "reality_check": reality_check,
         "smart_pathways": smart_pathways,
         "recommended_strategy": recommended_strategy
     }
-

@@ -187,7 +187,7 @@ async def chat_endpoint(state: ChatState):
     cumulative_text = " ".join(user_utterances)
 
     # ── ACTION 2: Recalibration / "I Didn't Like This Suggestion" ─────────────
-    if state.action == "recalibrate" or "don't like" in user_input.lower() or "didnt like" in user_input.lower() or "not interested" in user_input.lower():
+    if state.action == "recalibrate" or "don't like" in user_input.lower() or "didnt like" in user_input.lower() or "not interested" in user_input.lower() or "refine" in user_input.lower():
         state.phase = "recalibrating"
         rejected = state.rejected_degree or "the previous recommendation"
         
@@ -268,7 +268,7 @@ async def chat_endpoint(state: ChatState):
         
     scenario_turns_done = len(user_utterances)
     hit_max_cap = state.turn_count >= 6
-    wants_completion = state.action == "force_complete" or "show dossier" in user_input.lower() or "generate report" in user_input.lower() or "show me recommended" in user_input.lower()
+    wants_completion = state.action == "force_complete" or "show dossier" in user_input.lower() or "show report" in user_input.lower() or "view report" in user_input.lower() or "generate report" in user_input.lower() or "show me recommended" in user_input.lower()
     can_complete = is_converged or hit_max_cap or state.turn_count >= 4
     
     # ── ACTION 4: Converged Advising Mode (Post-Convergence Chat) ─────────────
@@ -287,7 +287,7 @@ async def chat_endpoint(state: ChatState):
         
         # Answer student's query directly as an authoritative counselor
         direct_ans = answer_student_question(user_input, state.stream, state.education_level, new_history)
-        advising_reply = f"{direct_ans}\n\nFeel free to explore your full dossier on the right, or ask me any other question about admissions, curriculum, or entrance exams!"
+        advising_reply = f"{direct_ans}\n\nFeel free to explore your full report on the right, or ask me any other question about admissions, curriculum, or entrance exams!"
         
         new_history.append({"role": "assistant", "content": advising_reply})
         state.history = new_history
@@ -295,7 +295,7 @@ async def chat_endpoint(state: ChatState):
         return {
             "type": "advising",
             "question": advising_reply,
-            "options": ["Tell me about entrance exams", "What is the 4-year curriculum like?", "Tell me about campus placements", "Download Official PDF Dossier"],
+            "options": ["Tell me about entrance exams", "What is the 4-year curriculum like?", "Tell me about campus placements", "Download Official PDF Report"],
             "can_complete": True,
             "stage": 4,
             "stage_name": "Your recommendation",
@@ -335,13 +335,13 @@ async def chat_endpoint(state: ChatState):
         
         celebratory_closure = (
             f"🎯 Based on our conversation across your interests, problem-solving style, and team collaboration, "
-            f"I have finalized your Admissions Dossier!\n\n"
+            f"I have finalized your Admissions Report!\n\n"
             f"Rather than locking you into a single rigid path, here are your **Top 3 Recommended Pathways** based on your natural cognitive alignment:\n\n"
             f"1. **{primary_title}** (`{rec1['fit_score']}% Fit`) — *Your #1 natural match for your core interests*\n"
             f"2. **{t2_title}** (`{rec2['fit_score']}% Fit`) — *Adjacent specialisation with technical/applied depth*\n"
             f"3. **{t3_title}** (`{rec3['fit_score']}% Fit`) — *Versatile complementary track with broad career flexibility*\n\n"
             f"Your complete academic roadmap, target entrance exams, and feasibility analysis for all three are now ready in the side pane. "
-            f"You can click on any of the 3 recommendations in your dossier to explore its specific roadmap!"
+            f"You can click on any of the 3 recommendations in your report to explore its specific roadmap!"
         )
         new_history.append({"role": "assistant", "content": celebratory_closure})
         state.history = new_history
@@ -349,7 +349,7 @@ async def chat_endpoint(state: ChatState):
         return {
             "type": "converged",
             "question": celebratory_closure,
-            "options": ["Tell me about entrance exams", "What is the 4-year curriculum like?", "Tell me about campus placements", "Download Official PDF Dossier"],
+            "options": ["Tell me about entrance exams", "What is the 4-year curriculum like?", "Tell me about campus placements", "Download Official PDF Report"],
             "can_complete": True,
             "is_updated_recommendation": True,
             "stage": 4,
@@ -389,7 +389,7 @@ async def chat_endpoint(state: ChatState):
             "type": "converged",
             "is_exploratory": True,
             "question": closure_msg,
-            "options": ["What are the weekend micro-projects?", "Tell me about broad stream options", "What entrance exams keep options open?", "Download Official PDF Dossier"],
+            "options": ["What are the weekend micro-projects?", "Tell me about broad stream options", "What entrance exams keep options open?", "Download Official PDF Report"],
             "can_complete": True,
             "is_updated_recommendation": True,
             "stage": 4,
