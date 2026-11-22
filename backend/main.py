@@ -1,5 +1,5 @@
 """
-CareerSathi: Cognitive Career & Admissions Advisory Suite (Navrachana University)
+CareerSaathi: Cognitive Career & Admissions Advisory Suite (Navrachana University)
 CSE708 NLP Lab Practical — End-to-End Dialogue State Orchestrator
 """
 
@@ -35,7 +35,7 @@ from generator import (
     query_local_gemma
 )
 
-app = FastAPI(title="CareerSathi: Cognitive Admissions & Career Advisory Suite | Navrachana University")
+app = FastAPI(title="CareerSaathi: Cognitive Admissions & Career Advisory Suite | Navrachana University")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Request and Response Schemas

@@ -1,4 +1,4 @@
-# 🎓 CareerSathi: Cognitive Career & Admissions Advisory Suite
+# 🎓 CareerSaathi: Cognitive Career & Admissions Advisory Suite
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat&logo=python)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -17,9 +17,9 @@
 
 ## 🌟 Executive Summary
 
-**CareerSathi** is an explainable, mixed-initiative career counselling and admissions advisory agent designed for Indian high school students navigating critical academic crossroads (**After 10th Stream Selection** and **After 12th Undergraduate Degree Discovery**).
+**CareerSaathi** is an explainable, mixed-initiative career counselling and admissions advisory agent designed for Indian high school students navigating critical academic crossroads (**After 10th Stream Selection** and **After 12th Undergraduate Degree Discovery**).
 
-Departing from rigid 50-question psychometric questionnaires, CareerSathi engages students in natural, empathetic dialogue grounded in realistic life scenarios. It models cognitive preferences in continuous space, compiles a live side-by-side **Admissions Dossier Artifact** (inspired by Claude Artifacts), provides **full NLP Explainability (XAI)**, and prints official, university-branded PDF advisories in Navrachana Crimson Red (`#a81d24`).
+Departing from rigid 50-question psychometric questionnaires, CareerSaathi engages students in natural, empathetic dialogue grounded in realistic life scenarios. It models cognitive preferences in continuous space, compiles a live side-by-side **Admissions Dossier Artifact** (inspired by Claude Artifacts), provides **full NLP Explainability (XAI)**, and prints official, university-branded PDF advisories in Navrachana Crimson Red (`#a81d24`).
 
 ---
 
@@ -116,8 +116,8 @@ Departing from rigid 50-question psychometric questionnaires, CareerSathi engage
 ### 2. Installation
 ```powershell
 # Clone the repository
-git clone https://github.com/Dhruv-D-18/CareerSathi.git
-cd CareerSathi
+git clone https://github.com/Dhruv-D-18/CareerSaathi.git
+cd CareerSaathi
 
 # Install dependencies
 pip install -r requirements.txt

@@ -17,7 +17,7 @@ def open_browser():
 
 if __name__ == "__main__":
     print("=" * 80)
-    print("  CAREERSATHI: COGNITIVE ADMISSIONS & CAREER ADVISORY SUITE")
+    print("  CAREERSAATHI: COGNITIVE ADMISSIONS & CAREER ADVISORY SUITE")
     print("  Navrachana University • Department of CSE • CSE708 NLP Lab")
     print("=" * 80)
     

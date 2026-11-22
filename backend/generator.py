@@ -128,7 +128,7 @@ def generate_dynamic_question(
 
     # Prompt design for Gemma 2B: Direct, positive, without negative constraint leakage
     if is_uncertain:
-        prompt = f"""You are CareerSathi, an encouraging career mentor for Indian students ({education_level}).
+        prompt = f"""You are CareerSaathi, an encouraging career mentor for Indian students ({education_level}).
 Recent conversation:
 {recent_context}
 The student feels unsure and said: "{resolved_reply}".
@@ -137,7 +137,7 @@ Respond warmly in 1 or 2 conversational sentences (under 30 words).
 Ask a simple comparison: do they prefer solving technical/logic puzzles on a computer, or creative design and working with people?"""
 
     else:
-        prompt = f"""You are CareerSathi, an empathetic, smart career mentor for Indian students ({education_level}, {stream}).
+        prompt = f"""You are CareerSaathi, an empathetic, smart career mentor for Indian students ({education_level}, {stream}).
 Recent conversation:
 {recent_context}
 Student: "{resolved_reply}"

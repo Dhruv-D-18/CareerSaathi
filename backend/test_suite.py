@@ -22,8 +22,8 @@ def run_test_scenario(name, level, turns):
         bot_q = r["question"]
         stage = r.get("stage_name", "")
         print(f"[Turn {idx} - Stage: {stage}]")
-        print(f"  User : \"{user_msg}\"")
-        print(f"  Sathi: \"{bot_q}\"\n")
+        print(f"  User  : \"{user_msg}\"")
+        print(f"  Saathi: \"{bot_q}\"\n")
     
     rep = r.get("report")
     if rep:

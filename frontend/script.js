@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// CareerSathi: Cognitive Career & Admissions Advisory Suite (Navrachana University)
+// CareerSaathi: Cognitive Career & Admissions Advisory Suite (Navrachana University)
 // Client State Machine, Claude-Style Artifact Split-View & Live NLP Telemetry
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -134,7 +134,7 @@ async function startAssessment(level) {
         handleServerResponse(data);
     } catch (err) {
         console.error(err);
-        appendBotMessage("Welcome to CareerSathi! To help find what stream or degree fits how you think: between building software/tech, conducting science lab experiments, creative writing/design, or business leadership, which one feels most natural to you?");
+        appendBotMessage("Welcome to CareerSaathi! To help find what stream or degree fits how you think: between building software/tech, conducting science lab experiments, creative writing/design, or business leadership, which one feels most natural to you?");
     } finally {
         showLoading(false);
     }
@@ -256,7 +256,7 @@ function handleServerResponse(data) {
                 dockedBar.classList.add("pulse-highlight");
                 if (dockedIcon) dockedIcon.innerText = "✨";
                 if (dockedTitle) dockedTitle.innerHTML = `<span class="badge-updated">UPDATED MATCH</span> <strong>${escapeHtml(newTitle)}</strong>`;
-                if (dockedSubtitle) dockedSubtitle.innerText = "CareerSathi has updated your Admissions Dossier • Click to review";
+                if (dockedSubtitle) dockedSubtitle.innerText = "CareerSaathi has updated your Admissions Dossier • Click to review";
                 
                 // Append in-chat notification card if chat pane doesn't have split open
                 appendInChatUpdateCard(newTitle, data.report.primary_fit);
@@ -299,7 +299,7 @@ function appendInChatUpdateCard(title, fitScore) {
         <div class="update-card-left">
             <span class="update-card-badge">✨ NEW RECOMMENDATION READY</span>
             <h4 class="update-card-title">${escapeHtml(title)}</h4>
-            <p class="update-card-desc">CareerSathi has updated your admissions dossier (${fitScore}% match). Click to open the side pane.</p>
+            <p class="update-card-desc">CareerSaathi has updated your admissions dossier (${fitScore}% match). Click to open the side pane.</p>
         </div>
         <button type="button" class="btn btn-crimson btn-sm update-card-btn" onclick="toggleArtifactPane(true)">
             View Dossier &nearr;
@@ -341,7 +341,7 @@ function injectArtifactCardInChat() {
         <div class="artifact-card-left">
             <span class="artifact-card-icon">📄</span>
             <div>
-                <div class="artifact-card-title">CareerSathi Admissions Dossier Generated</div>
+                <div class="artifact-card-title">CareerSaathi Admissions Dossier Generated</div>
                 <div class="artifact-card-subtitle">Click to open Side-by-Side Artifact View</div>
             </div>
         </div>
@@ -808,7 +808,7 @@ function printDossier() {
     const degName = (latestDossierReport && latestDossierReport.primary_degree_name)
         ? latestDossierReport.primary_degree_name.replace(/[^a-zA-Z0-9]/g, "_")
         : "Admissions_Dossier";
-    document.title = `Navrachana_University_CareerSathi_${degName}`;
+    document.title = `Navrachana_University_CareerSaathi_${degName}`;
     
     window.print();
     
