@@ -1,5 +1,5 @@
-# CareerSathi: Verified Dialogue Testing Suite & Demonstration Guide
-*Navrachana University • Department of Computer Science & Engineering • CSE708 NLP Lab*
+# CareerSaathi: Verified Dialogue Testing Suite & Demonstration Guide
+*Navrachana University • Department of Computer Science & Engineering*
 
 All test cases in this document have been **pre-tested and verified** against the local on-device SLM (`gemma2:2b` via Ollama) and the Sentence-BERT psychometric engine. Entering these exact prompts will produce the verified, deterministic recommendations.
 
@@ -148,18 +148,18 @@ All test cases in this document have been **pre-tested and verified** against th
 
 ---
 
-## Demonstration Checklist for Jaideepsinh Sir
+## Demonstration & Evaluation Checklist
 
-During your viva / evaluation with Sir:
+During your project walkthrough:
 
 1. **Start from Clean Landing Page**: Show the distinction between *After 10th* (Stream selection) and *After 12th* (Degree selection).
 2. **Show the Checkmarks**: Point out how the left Journey Rail marks completed stages with `✓` (`Interests` $\rightarrow$ `Thinking style` $\rightarrow$ `Strengths`).
 3. **Show Claude-Style Split-View**: Point out that when the Dossier is generated, the chat is **never lost** — it sits on the left for evaluation.
 4. **Click the Evidence Quotes**: In the *"Why this fits you"* section, click a quoted sentence: the left chat will smoothly scroll directly to that exact user message!
-5. **Open Examiner Telemetry**:
-   * Click **`[ 🔬 Examiner Telemetry ]`** at the top right of the Dossier.
+5. **Open AI Reasoning & Telemetry (XAI)**:
+   * Click **`[ 🔬 AI Reasoning (XAI) ]`** at the top right of the Dossier.
    * Point out the live **Holland 6D Radar Chart** plotted in real-time SVG ($R^6$ coordinates).
    * Point out the **Normalized Shannon Entropy H** formula verifying mathematical convergence.
-   * Point out the **spaCy POS Action Verbs** (Sessions 7–10) and **TF-IDF Vocabulary attribution** (Sessions 11–13).
-   * Point out the **Decision Tree splits** (Sessions 14–16).
+   * Point out the **spaCy POS Action Verbs** and **TF-IDF Vocabulary attribution**.
+   * Point out the **Decision Tree splits** and deterministic trajectory traversal.
 6. **Print / Export PDF**: Click **`[ 📥 Download PDF ]`** to show the print-optimized institutional report ready for Navrachana admissions!

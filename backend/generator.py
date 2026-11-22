@@ -1,6 +1,6 @@
 """
 Local Language Generation Engine (Gemma-2B via Local Ollama)
-CSE708 NLP Lab Practical — Syllabus Sessions 28–29 (Language Modeling & On-Device NLG)
+Empathetic Dialogue Generation, Constraint Enforcement & On-Device NLG
 """
 
 import requests

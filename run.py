@@ -18,7 +18,7 @@ def open_browser():
 if __name__ == "__main__":
     print("=" * 80)
     print("  CAREERSAATHI: COGNITIVE ADMISSIONS & CAREER ADVISORY SUITE")
-    print("  Navrachana University • Department of CSE • CSE708 NLP Lab")
+    print("  Navrachana University • Department of Computer Science & Engineering")
     print("=" * 80)
     
     # Add backend directory to sys.path
@@ -28,7 +28,7 @@ if __name__ == "__main__":
         
     start_time = time.time()
     try:
-        print("  [NLP Pipeline] Initializing Modules Mapped to Syllabus (Sessions 7-29)...")
+        print("  [NLP Pipeline] Initializing Linguistic Engine & Semantic Embedders...")
         import riasec
         import nlp_engine
         import generator

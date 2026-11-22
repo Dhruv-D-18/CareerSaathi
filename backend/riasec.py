@@ -1,6 +1,6 @@
 """
 Holland's RIASEC Psychometric Engine & Indian Educational Ontology Matrix
-CSE708 NLP Lab Practical — Syllabus Sessions 26–27 (BERT, Semantic Embeddings, Vector Spaces)
+Sentence-BERT Semantic Vector Space, Softmax Calibration & Bayesian State Tracking
 """
 
 import numpy as np

@@ -1,6 +1,6 @@
 """
 CareerSaathi: Cognitive Career & Admissions Advisory Suite (Navrachana University)
-CSE708 NLP Lab Practical — End-to-End Dialogue State Orchestrator
+End-to-End Conversational Dialogue State Orchestrator & Multi-Stage Recommender
 """
 
 from fastapi import FastAPI, HTTPException
@@ -163,13 +163,13 @@ async def chat_endpoint(state: ChatState):
             }
         }
     
-    # ── SESSIONS 7-10: Linguistic Preprocessing & Morpheme Extraction ────────
+    # ── STAGE 1: Linguistic Preprocessing & Morpheme Extraction ──────────────
     prep_results = preprocess_linguistic_text(cumulative_text)
     current_turn_prep = preprocess_linguistic_text(user_input)
     is_uncertain = current_turn_prep.get("is_uncertain", False)
     user_asked_question = is_interrogative(user_input)
     
-    # ── SESSIONS 26-27: Dense S-BERT Embedding & Bayesian Update ────────────
+    # ── STAGE 2: Dense S-BERT Embedding & Bayesian RIASEC Update ─────────────
     turn_riasec = compute_riasec_scores(cumulative_text)
     updated_riasec = update_belief_state(current_riasec, turn_riasec, alpha=0.55)
     state.riasec_state = updated_riasec
@@ -196,7 +196,7 @@ async def chat_endpoint(state: ChatState):
         conclusion = (
             f"🎯 Understood! I have recalibrated your profile based on your preference "
             f"and updated your Admissions Dossier to: **{new_primary_title}** ({recs['primary']['fit_score']}% Fit)!\n\n"
-            f"Your updated curriculum, target entrance exams, and syllabus are ready in the side pane. "
+            f"Your updated curriculum, target entrance exams, and career pathways are ready in the side pane. "
             f"What specific questions do you have about this path, or would you like to explore alternative university degrees?"
         )
         new_history.append({"role": "assistant", "content": conclusion})
@@ -256,7 +256,7 @@ async def chat_endpoint(state: ChatState):
         
         # Answer student's query directly as an authoritative counselor
         direct_ans = answer_student_question(user_input, state.stream, state.education_level, new_history)
-        advising_reply = f"{direct_ans}\n\nFeel free to explore your full dossier on the right, or ask me any other question about admissions, syllabus, or entrance exams!"
+        advising_reply = f"{direct_ans}\n\nFeel free to explore your full dossier on the right, or ask me any other question about admissions, curriculum, or entrance exams!"
         
         new_history.append({"role": "assistant", "content": advising_reply})
         state.history = new_history

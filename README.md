@@ -7,7 +7,7 @@
 [![Ollama](https://img.shields.io/badge/Local_SLM-Gemma--2:2B-black?style=flat&logo=ollama)](https://ollama.com/)
 [![Institution](https://img.shields.io/badge/Navrachana_University-Vadodara-a81d24.svg?style=flat)](https://nuv.ac.in/)
 
-> **CSE708 Natural Language Processing — End-Semester Practical Examination & Hackathon**  
+> **Cognitive AI & Natural Language Processing Career Advisory System**  
 > **Student Name:** Dhruv Dharikar  
 > **Roll Number:** 23000527  
 > **Faculty Guide:** Dr. Jaideepsinh Raulji  
@@ -75,10 +75,10 @@ Departing from rigid 50-question psychometric questionnaires, CareerSaathi engag
         └───────────────────────────────────────────────────────────┘
 ```
 
-1. **Syntactic & Linguistic Morpheme Extraction (Sessions 7–10)**:
+1. **Syntactic & Linguistic Morpheme Extraction**:
    * SpaCy tokenization, lemmatization, syntactic dependency parsing, and action verb extraction.
    * Informal abbreviation normalization (`"idk"`, `"coding"`, `"tech"`).
-2. **Dense Semantic Embedding Space (Sessions 26–27)**:
+2. **Dense Semantic Embedding Space**:
    * **Sentence-BERT (`all-MiniLM-L6-v2`)** maps utterances into dense vector space $\mathbb{R}^{384}$.
    * Six Holland RIASEC prototype centroids $\mu_k \in \mathbb{R}^{384}$ pre-computed from behavioral anchor corpora.
    * Scaled via Temperature Softmax ($T = 10.0$) across Realistic, Investigative, Artistic, Social, Enterprising, and Conventional poles.
@@ -143,4 +143,4 @@ python backend/test_suite.py
 ---
 
 ## 📄 License & Academic Attribution
-Developed by **Dhruv Dharikar** (Roll No: 23000527) under the guidance of **Dr. Jaideepsinh Raulji** for the CSE708 NLP Lab Practical Examination at **Navrachana University, Vadodara**. Released under the MIT License.
+Developed by **Dhruv Dharikar** (Roll No: 23000527) under the mentorship of **Dr. Jaideepsinh Raulji** at **Navrachana University, Vadodara**. Released under the MIT License.

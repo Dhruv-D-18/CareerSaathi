@@ -53,7 +53,7 @@
             <!-- Institutional Trust & Academic Footnote -->
             <footer class="landing-footer">
                 <p class="framework-note">Based on Holland's RIASEC Psychometric Framework & Dense S-BERT NLP. Local On-Device SLM (Gemma 2 2B on RTX 4060). Your answers stay 100% private in this session.</p>
-                <p class="academic-credit">Department of Computer Science & Engineering • CSE708 NLP Lab End Sem Practical</p>
+                <p class="academic-credit">Department of Computer Science & Engineering • Navrachana University</p>
             </footer>
         </main>
     </div>
@@ -76,9 +76,9 @@
                     <span>📄 View Admissions Dossier</span>
                     <span class="sparkle-icon">↗</span>
                 </button>
-                <button class="btn-telemetry-toggle" id="examiner-mode-btn" onclick="toggleExaminerMode()" title="Toggle Live NLP & Psychometric Telemetry for Examiners">
+                <button class="btn-telemetry-toggle" id="examiner-mode-btn" onclick="toggleExaminerMode()" title="Toggle Live AI Reasoning & Telemetry (XAI)">
                     <span class="pulse-indicator"></span>
-                    <span>🔬 Examiner Telemetry</span>
+                    <span>🔬 AI Reasoning (XAI)</span>
                 </button>
                 <button class="btn-restart-icon" onclick="resetAssessment()" title="Restart Session">↺</button>
             </div>
@@ -229,7 +229,7 @@
                         </button>
                         <button class="artifact-tab-btn" id="tab-examiner-xai" onclick="switchArtifactTab('examiner')">
                             <span class="pulse-dot-red"></span>
-                            <span>🔬 Examiner NLP Telemetry (XAI)</span>
+                            <span>🔬 AI Reasoning & Telemetry (XAI)</span>
                         </button>
                     </div>
 
@@ -324,11 +324,11 @@
                         </div>
                     </div>
 
-                    <!-- TAB B: EXAMINER NLP TELEMETRY (For Jaideepsinh Sir) -->
+                    <!-- TAB B: AI REASONING & TELEMETRY (XAI) -->
                     <div class="artifact-tab-content" id="content-examiner-xai">
                         <div class="examiner-banner">
-                            <strong>CSE708 NLP Lab Practical — Live Algorithmic State Inspector</strong>
-                            <span>Verifiable telemetry for Sessions 7–29</span>
+                            <strong>Explainable AI Architecture — Live Algorithmic State Inspector</strong>
+                            <span>Real-time telemetry for Bayesian inference & linguistic parsing</span>
                         </div>
 
                         <!-- Metrics Grid -->
@@ -360,10 +360,10 @@
                             </div>
                         </div>
 
-                        <!-- Syntactic Tokens & POS Action Verbs (Sessions 7-10) -->
+                        <!-- Syntactic Tokens & POS Action Verbs -->
                         <div class="dossier-card xai-box">
                             <div class="xai-box-header">
-                                <h4>Linguistic Parsing & Morphemes (Sessions 7–10)</h4>
+                                <h4>Linguistic Parsing & Action Extraction (NLP)</h4>
                                 <span class="formula-badge">spaCy POS + Lemmatization</span>
                             </div>
                             <div class="pos-tokens-wrap" id="xai-pos-tokens">
@@ -371,10 +371,10 @@
                             </div>
                         </div>
 
-                        <!-- TF-IDF Attribution Keyword Cloud (Sessions 11-13) -->
+                        <!-- TF-IDF Attribution Keyword Cloud -->
                         <div class="dossier-card xai-box">
                             <div class="xai-box-header">
-                                <h4>TF-IDF Sparse Attribution (Sessions 11–13)</h4>
+                                <h4>TF-IDF Sparse Feature Attribution</h4>
                                 <span class="formula-badge">V = 451 N-grams</span>
                             </div>
                             <div class="tfidf-cloud-wrap" id="xai-tfidf-cloud">
@@ -382,10 +382,10 @@
                             </div>
                         </div>
 
-                        <!-- Decision Tree Routing Splits (Sessions 14-16) -->
+                        <!-- Decision Tree Routing Splits -->
                         <div class="dossier-card xai-box">
                             <div class="xai-box-header">
-                                <h4>Decision Tree Rule Splits (Sessions 14–16)</h4>
+                                <h4>Decision Tree Trajectory & Rule Splits</h4>
                                 <span class="formula-badge">Deterministic Tree Trajectory</span>
                             </div>
                             <div class="tree-splits-list" id="xai-tree-splits">

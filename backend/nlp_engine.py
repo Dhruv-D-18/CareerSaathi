@@ -1,6 +1,6 @@
 """
 Linguistic Preprocessing & Explainable AI (XAI) Feature Attribution Engine
-CSE708 NLP Lab Practical — Syllabus Sessions 7–16 (POS, Lemmatization, TF-IDF, Trees)
+Natural Language Processing, Lemmatization, TF-IDF Vectorization & Decision Trees
 """
 
 import re
@@ -14,12 +14,12 @@ import numpy as np
 # Import RIASEC definitions
 from riasec import RIASEC_CODES
 
-# Load SpaCy pipeline for Sessions 7-10 (Linguistic Processing)
+# Load SpaCy pipeline for Linguistic Processing
 print("  [NLP Engine] Loading SpaCy linguistic parser (en_core_web_sm)...")
 nlp = spacy.load("en_core_web_sm", disable=["ner"])
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 1. Linguistic Preprocessing & Morpheme Extraction (Sessions 7–10)
+# 1. Linguistic Preprocessing & Morpheme Extraction
 # ─────────────────────────────────────────────────────────────────────────────
 
 CHAT_ABBREVIATIONS = {
@@ -219,7 +219,7 @@ def detect_uncertainty(text: str) -> bool:
 
 def preprocess_linguistic_text(text: str) -> Dict:
     """
-    Applies Sessions 7-10 NLP pipeline:
+    Applies NLP Preprocessing & Linguistic Extraction Pipeline:
     - Text normalization & Abbreviation expansion
     - Tokenization & Lemmatization
     - Syntactic POS Tagging
@@ -266,7 +266,7 @@ def preprocess_linguistic_text(text: str) -> Dict:
     }
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 2. Sparse TF-IDF Vectorization & Classical Tree Classifier (Sessions 11–16)
+# 2. Sparse TF-IDF Vectorization & Classical Tree Classifier
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Build a comprehensive training corpus from RIASEC anchors + synthetic variations
@@ -349,7 +349,7 @@ def extract_linguistic_attributions(user_text: str) -> List[Dict]:
 def trace_decision_tree_path(user_text: str) -> List[Dict]:
     """
     Traces the Decision Tree binary split path step-by-step for the user input.
-    Provides verifiable XAI path logs for Sessions 14-16.
+    Provides verifiable XAI path logs for decision tree traversal.
     """
     if not user_text or not user_text.strip():
         return []

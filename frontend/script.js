@@ -627,13 +627,13 @@ function renderDossierArtifact(report) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 10. Examiner NLP Telemetry Rendering (For Jaideepsinh Sir)
+// 10. AI Reasoning & Telemetry Rendering (XAI)
 // ─────────────────────────────────────────────────────────────────────────────
 
 function updateExaminerTelemetry(telemetry) {
     if (!telemetry) return;
 
-    // 1. Radar Chart in Examiner Tab
+    // 1. Radar Chart in Telemetry Tab
     if (telemetry.riasec) {
         drawRadarChart("xai-radar-svg", telemetry.riasec);
     }
@@ -654,7 +654,7 @@ function updateExaminerTelemetry(telemetry) {
         }
     }
 
-    // 3. POS Tokens & Verbs (Sessions 7-10)
+    // 3. POS Tokens & Verbs (Linguistic Parsing)
     const posWrap = document.getElementById("xai-pos-tokens");
     if (posWrap && telemetry.highlights) {
         posWrap.innerHTML = "";
@@ -669,7 +669,7 @@ function updateExaminerTelemetry(telemetry) {
         }
     }
 
-    // 4. TF-IDF Cloud (Sessions 11-13)
+    // 4. TF-IDF Cloud (Feature Attribution)
     const tfidfWrap = document.getElementById("xai-tfidf-cloud");
     if (tfidfWrap && telemetry.highlights) {
         tfidfWrap.innerHTML = "";
@@ -685,7 +685,7 @@ function updateExaminerTelemetry(telemetry) {
         }
     }
 
-    // 5. Decision Tree Splits (Sessions 14-16)
+    // 5. Decision Tree Splits (Rule Traversal)
     const treeWrap = document.getElementById("xai-tree-splits");
     if (treeWrap && telemetry.decision_path) {
         treeWrap.innerHTML = "";

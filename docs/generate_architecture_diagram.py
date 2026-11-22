@@ -10,9 +10,9 @@ ax.set_ylim(0, 100)
 ax.axis('off')
 
 # Title block
-ax.text(50, 96.8, 'AURAPATH 2.0 : SYLLABUS-ALIGNED HYBRID NLP ARCHITECTURE & PIPELINE', 
+ax.text(50, 96.8, 'CAREERSAATHI : HYBRID NLP ARCHITECTURE & INFERENCE PIPELINE', 
         ha='center', va='center', fontsize=20, fontweight='bold', color='#ffffff', fontfamily='sans-serif')
-ax.text(50, 93.8, 'Designed for CSE708 NLP Lab Practical | 100% On-Device Local Acceleration (NVIDIA RTX 4060 + Local Gemma-2B)', 
+ax.text(50, 93.8, 'Cognitive Career Advisory Suite | 100% On-Device Local Acceleration (NVIDIA RTX 4060 + Local Gemma-2B)', 
         ha='center', va='center', fontsize=12, color='#38bdf8', fontfamily='sans-serif')
 
 # Helper to draw rounded cards
@@ -64,17 +64,17 @@ ax.text(5, 16.5, 'Final Comprehensive Career Dossier', fontsize=9.5, fontweight=
 ax.text(6.5, 12.5, 'Scorecard overlay displaying Primary/Secondary match,\nstudent quote justifications, and Indian entrance\nexam roadmap (JEE, CUET, CLAT, NIFT, IPMAT).', fontsize=8, color='#cbd5e1')
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 2. NLP BACKEND PIPELINE (Center Column: Mapped to Sir's Syllabus)
+# 2. NLP BACKEND PIPELINE (Center Column: Core Cognitive Architecture)
 # ─────────────────────────────────────────────────────────────────────────────
 # STAGE 1: Preprocessing
-draw_card(33, 73, 34, 17, 'STAGE 1: LINGUISTIC PREPROCESSING (Sessions 7-10)', 'Lexemes, Morphemes, POS Tagging & Indian Normalization', '#a78bfa')
+draw_card(33, 73, 34, 17, 'STAGE 1: LINGUISTIC PREPROCESSING', 'Lexemes, Morphemes, POS Tagging & Indian Normalization', '#a78bfa')
 ax.text(35, 84.5, '• Unicode Normalization & Hinglish Transliteration Regex', fontsize=8.5, color='#e2e8f0')
 ax.text(35, 81.8, '• Tokenization & Stopword Filtering (NLTK / SpaCy en_core_web_sm)', fontsize=8.5, color='#e2e8f0')
 ax.text(35, 79.1, '• Lemmatization & Morphological Analysis (Resolving base morphemes)', fontsize=8.5, color='#e2e8f0')
 ax.text(35, 76.4, '• Syntactic POS Tagging: Extracts Action Verbs & Noun Chunks', fontsize=8.5, color='#e2e8f0')
 
 # STAGE 2: Deep Dense Embeddings
-draw_card(33, 49, 34, 21, 'STAGE 2: PSYCHOMETRIC VECTOR SPACE (Sessions 26-27)', 'Deep Dense Representations & Centroid Cosine Geometry', '#38bdf8')
+draw_card(33, 49, 34, 21, 'STAGE 2: PSYCHOMETRIC VECTOR SPACE', 'Deep Dense Representations & Centroid Cosine Geometry', '#38bdf8')
 ax.text(35, 63.8, '• Sentence-BERT Encoder (all-MiniLM-L6-v2) on PyTorch CUDA', fontsize=8.5, color='#e2e8f0')
 ax.text(35, 61.1, '  Maps student text into 384-dimensional dense vector v_user in R^384', fontsize=8, color='#94a3b8')
 ax.text(35, 58.2, '• 6 Holland RIASEC Class Centroid Prototypes: mu_R, ..., mu_C', fontsize=8.5, color='#e2e8f0')
@@ -82,7 +82,7 @@ ax.text(35, 55.5, '• Cosine Similarity Mapping: Sim(v_user, mu_k) = (v . mu) /
 ax.text(35, 52.8, '• Bayesian Momentum State Update: S_t = alpha * S_{t-1} + (1 - alpha) * a_t', fontsize=8.5, color='#f8fafc', fontweight='bold')
 
 # STAGE 3: Sparse Vectorization
-draw_card(33, 26, 34, 20, 'STAGE 3: SPARSE VECTORIZATION & XAI (Sessions 11-16)', 'N-Grams, TF-IDF Matrices & Tree-Based Attribution', '#fb923c')
+draw_card(33, 26, 34, 20, 'STAGE 3: SPARSE VECTORIZATION & XAI', 'N-Grams, TF-IDF Matrices & Tree-Based Attribution', '#fb923c')
 ax.text(35, 40.0, '• TF-IDF Vectorizer with unigrams & bigrams (ngram_range=(1,2))', fontsize=8.5, color='#e2e8f0')
 ax.text(35, 37.3, '  Sparse feature matrix dimension V ~ 1,105 tokens, sublinear TF', fontsize=8, color='#94a3b8')
 ax.text(35, 34.5, '• Random Forest Classifier (150 Tree Ensembles) + Decision Tree', fontsize=8.5, color='#e2e8f0')
@@ -100,7 +100,7 @@ ax.text(36.5, 7.0, '  Trigger NARROWING MODE: Target specific Indian Stream & De
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. GENERATION & ONTOLOGY (Right Column)
 # ─────────────────────────────────────────────────────────────────────────────
-draw_card(71, 52, 26, 38, 'STAGE 5: LOCAL ON-DEVICE SLM (Sessions 28-29)', 'Real-Time NLG (Zero Cloud API / Zero Paywall)', '#e879f9')
+draw_card(71, 52, 26, 38, 'STAGE 5: LOCAL ON-DEVICE SLM', 'Real-Time NLG (Zero Cloud API / Zero Paywall)', '#e879f9')
 ax.text(73, 83.5, 'Local Ollama Engine on localhost:11434', fontsize=9.5, fontweight='bold', color='#f8fafc')
 ax.text(74.5, 81.0, 'Connected via async HTTP request from FastAPI.\nCompletely offline with zero external network lag.', fontsize=8, color='#cbd5e1')
 
