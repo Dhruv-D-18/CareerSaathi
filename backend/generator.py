@@ -5,6 +5,7 @@ CSE708 NLP Lab Practical — Syllabus Sessions 28–29 (Language Modeling & On-D
 
 import requests
 import json
+import re
 from typing import Dict, List, Optional
 from riasec import RIASEC_CODES
 
@@ -15,7 +16,7 @@ MODEL_NAME = "gemma2:2b"
 # 1. Ollama Connectivity & Generation Client
 # ─────────────────────────────────────────────────────────────────────────────
 
-def query_local_gemma(prompt: str, timeout: int = 25, max_tokens: int = 95) -> Optional[str]:
+def query_local_gemma(prompt: str, timeout: int = 25, max_tokens: int = 80) -> Optional[str]:
     """
     Sends an inference request to the local Ollama instance running on localhost:11434.
     Runs 100% locally on the student's machine (accelerated by RTX 4060 GPU).
@@ -26,7 +27,7 @@ def query_local_gemma(prompt: str, timeout: int = 25, max_tokens: int = 95) -> O
             "prompt": prompt,
             "stream": False,
             "options": {
-                "temperature": 0.60,
+                "temperature": 0.55,
                 "top_p": 0.88,
                 "num_predict": max_tokens
             }
@@ -36,13 +37,32 @@ def query_local_gemma(prompt: str, timeout: int = 25, max_tokens: int = 95) -> O
             text = res.json().get("response", "").strip()
             # Clean unwanted artifacts
             text = text.replace('"', '').replace('**', '').strip()
+            
             # Strip generic AI filler prefixes
             for filler in [
                 "That's a great choice!", "That's a great idea!", "That's a great starting point!",
-                "That's an interesting thought!", "That's wonderful!", "Great choice!"
+                "That's an interesting thought!", "That's wonderful!", "Great choice!",
+                "That's fascinating!", "That's interesting!"
             ]:
                 if text.lower().startswith(filler.lower()):
                     text = text[len(filler):].strip()
+                    
+            # Programmatically strip robotic parroting openings
+            text = re.sub(r'^(you mentioned [^.?!]+[.?!]\s*)+', '', text, flags=re.IGNORECASE).strip()
+            text = re.sub(r'^(so,?\s+you really thrive in [^.?!]+[.?!]\s*)+', '', text, flags=re.IGNORECASE).strip()
+            text = re.sub(r'^(it\'?s great you\'?re interested in [^.?!]+[.?!]\s*)+', '', text, flags=re.IGNORECASE).strip()
+            text = re.sub(r'^(building software,?\s*huh\??\s*i\'?m sensing [^.?!]+[.?!]\s*)+', '', text, flags=re.IGNORECASE).strip()
+            text = re.sub(r'^(\w+\s+really interests you\.\s*)+', '', text, flags=re.IGNORECASE).strip()
+            
+            # Remove any unwanted lecture preaching if model hallucinated entrance exam talk
+            if "entrance exams like" in text.lower() or "focus on your academic goals" in text.lower():
+                sentences = re.split(r'(?<=[.?!])\s+', text)
+                clean_sentences = [
+                    s for s in sentences 
+                    if not any(k in s.lower() for k in ["academic goals", "cuet/jee", "entrance exam", "crucial for admission"])
+                ]
+                text = " ".join(clean_sentences).strip()
+                
             return text
     except Exception as e:
         print(f"  [Generator Notice] Local Ollama call bypassed/timed out ({e}). Utilizing deterministic dilemma generator.")
@@ -71,15 +91,10 @@ def generate_dynamic_question(
     top_code, top_val = sorted_traits[0]
     sec_code, sec_val = sorted_traits[1]
     
-    top_name = RIASEC_CODES[top_code]["name"]
-    sec_name = RIASEC_CODES[sec_code]["name"]
-    top_desc = RIASEC_CODES[top_code]["title"]
-    sec_desc = RIASEC_CODES[sec_code]["title"]
-    
-    # Compile full recent dialogue context (last 8 exchanges so model never forgets)
+    # Compile recent dialogue context (last 6 exchanges)
     recent_context = ""
     history_lower = ""
-    for msg in history[-8:]:
+    for msg in history[-6:]:
         role = "Student" if msg["role"] == "user" else "Counselor"
         content = msg["content"]
         recent_context += f"{role}: {content}\n"
@@ -87,48 +102,64 @@ def generate_dynamic_question(
 
     # Track what has already been discussed in dialogue to strictly avoid repeating questions
     team_already_discussed = any(w in history_lower for w in ["team", "solo", "collaborat", "alone", "group", "leading"])
-    coding_discussed = any(w in history_lower for w in ["code", "coding", "software", "app", "mobile", "algorithm"])
+    coding_discussed = any(w in history_lower for w in ["code", "coding", "software", "app", "mobile", "algorithm", "developer"])
+    user_ux_discussed = any(w in history_lower for w in ["user", "ux", "ui", "experience", "design", "screens"])
     
+    # Resolve student shorthand like "the first one", "first", "coding"
+    resolved_reply = user_reply
+    u_clean = user_reply.strip().lower()
+    if u_clean in ["the first one", "first one", "1", "option 1", "first"]:
+        resolved_reply = f"{user_reply} (student selects the first option from your previous question)"
+    elif u_clean in ["the second one", "second one", "2", "option 2", "second"]:
+        resolved_reply = f"{user_reply} (student selects the second option from your previous question)"
+
     # Determine Journey Stage with dynamic non-repeating sub-focus
     if turn_num <= 2:
-        stage_focus = "STAGE 1: INTERESTS & PASSIONS. Deepen what excites them about the specific projects or applications they mentioned."
+        stage_focus = "Deepen what excites them about the specific digital apps, tools, or projects they want to create."
     elif turn_num <= 4:
-        stage_focus = "STAGE 2: THINKING STYLE & EXECUTION. Ask about how they break down a complex problem, debug errors, or organize tasks."
+        stage_focus = "Ask how they like to tackle problem-solving — breaking it down step-by-step or experimenting hands-on."
     elif not team_already_discussed:
-        stage_focus = "STAGE 3: WORK STYLE. Ask whether they thrive more in deep individual focus or brainstorming collaboratively in a team."
-    elif coding_discussed:
-        stage_focus = "STAGE 3 (DEEP DIVE): ARCHITECTURE & USER EXPERIENCE. Ask if they prefer working on backend logic, databases and algorithms, or designing visual screens and interactive UI/UX for users."
+        stage_focus = "Ask whether they prefer working independently with deep focus or collaborating actively in a group."
+    elif coding_discussed or user_ux_discussed:
+        stage_focus = "Ask whether they prefer working on the core logic and technical algorithms, or crafting the user experience and interface."
     else:
-        stage_focus = "STAGE 3 (DEEP DIVE): REAL-WORLD IMPACT. Ask if they prefer building brand-new experimental ideas from scratch or optimizing and refining practical everyday tools."
+        stage_focus = "Ask what kind of real-world problems they would most enjoy solving with their skills."
 
-    # Contextual prompt engineering with strict anti-loop and anti-repetition rules
+    # Prompt design for Gemma 2B: Direct, positive, without negative constraint leakage
     if is_uncertain:
-        prompt = f"""You are a warm, empathetic Indian career counselor talking with a student ({education_level}).
-Recent chat:
+        prompt = f"""You are CareerSathi, an encouraging career mentor for Indian students ({education_level}).
+Recent conversation:
 {recent_context}
-The student is feeling unsure and said: "{user_reply}".
+The student feels unsure and said: "{resolved_reply}".
 
-CRITICAL RULES:
-1. Do NOT start with "That's a great choice" or generic filler.
-2. Acknowledge their hesitation with kindness in one brief phrase.
-3. Ask a very simple, grounded question comparing two easy, natural activities (e.g., solving a logic puzzle on a computer vs creative writing/sketching or helping people).
-4. Do NOT use multiple-choice (A/B/C) or bullets. Maximum 30 words:"""
+Respond warmly in 1 or 2 conversational sentences (under 30 words).
+Ask a simple comparison: do they prefer solving technical/logic puzzles on a computer, or creative design and working with people?"""
 
     else:
-        prompt = f"""You are an insightful, empathetic Indian career counselor talking with a student ({education_level}, {stream}).
-Recent chat:
+        prompt = f"""You are CareerSathi, an empathetic, smart career mentor for Indian students ({education_level}, {stream}).
+Recent conversation:
 {recent_context}
-Student's latest response: "{user_reply}"
-Current Goal: {stage_focus}
+Student: "{resolved_reply}"
+Goal: {stage_focus}
 
-CRITICAL ANTI-REPETITION RULES:
-1. STRICT NON-REPETITION: Inspect the recent chat above carefully! If the student already answered about teamwork, solo work, or leading, NEVER ask about solo vs team again!
-2. DIRECT CONTINUITY: Follow their latest answer ("{user_reply}").
-   - If they mentioned coding: Ask whether they prefer deep backend logic/algorithms OR designing the visual interfaces that users interact with.
-   - If they mentioned design: Ask about user journeys vs graphic styling.
-3. NO PREACHING: Never lecture the student about "focusing on academic goals" or "studying hard for entrance exams". Stay curious, warm, and conversational.
-4. NO GENERIC FILLER: Do NOT start with "That's a great choice!", "That's a great idea!", or "Interesting!". Start directly with your insight or question.
-5. Keep it concise (under 35 words). No multiple-choice options (A/B/C) or bullets:"""
+Respond naturally like a friendly guide.
+1. Be direct and conversational. Do not repeat what they just said.
+2. Ask ONE engaging, open question advancing the conversation towards their goal.
+3. Keep it under 30 words. No multiple choice, bullets, or lectures."""
+
+    response = query_local_gemma(prompt, timeout=25, max_tokens=80)
+    
+    # Intercept repetition of solo vs team if already discussed
+    if response and team_already_discussed and any(w in response.lower() for w in ["solo", "team", "collaborat", "work alone"]):
+        response = "When you build an app or digital tool, do you enjoy writing the background logic and algorithms, or designing how the screens look and feel for users?"
+        
+    # Fail-Safe Fallback
+    if not response or len(response.strip()) < 15:
+        if is_uncertain:
+            return "It's completely normal to feel unsure right now! Between these two, do you enjoy solving logical puzzles and tech on a computer, or do you prefer creative design, writing, and hands-on projects?"
+        response = get_deterministic_fallback_question(top_code, sec_code, is_ambiguous, stream, user_reply, turn_num)
+        
+    return response
 
     response = query_local_gemma(prompt, timeout=25, max_tokens=85)
     

@@ -18,10 +18,10 @@ RIASEC_CODES = {
         "emoji": "🛠️",
         "color": "#fb923c",  # Warm Orange
         "anchors": [
-            "I enjoy building physical things, working with tools, machinery, vehicle engines, hardware, and assembling prototypes.",
-            "Tinkering with physical devices, robotics mechanisms, metal chassis, physical electronics, and practical construction.",
-            "Hands-on mechanical repair, physical assembly, woodworking, electrical wiring, vehicle mechanics, and structural modeling.",
-            "Operating precision machines, 3D printing physical parts, soldering hardware circuits, and structural fabrication."
+            "I enjoy physical workshop repair, automotive engines, mechanical machinery, carpentry, physical construction, and manufacturing hardware.",
+            "Operating physical workshop tools, vehicle maintenance, manual mechanical assembly, metal welding, and industrial machines.",
+            "Hands-on physical mechanics, plumbing, electrical wiring of buildings, physical carpentry, and heavy machinery maintenance.",
+            "Fabricating physical hardware parts, industrial lathe tools, mechanical vehicle assembly, and physical construction work."
         ]
     },
     "I": {
@@ -30,10 +30,10 @@ RIASEC_CODES = {
         "emoji": "🔬",
         "color": "#38bdf8",  # Cyan Blue
         "anchors": [
-            "I love coding software, writing algorithms, programming applications, web backend, and analyzing datasets.",
-            "Computer programming, solving mathematical logic problems, developing software systems, and data science.",
-            "Scientific curiosity, investigating physics laws, chemical reactions, laboratory biological research, and mathematical proofs.",
-            "Coding in Python, building web applications, database schemas, computational models, and diagnosing complex logic bugs."
+            "I love building software, mobile apps, coding tech tools, writing algorithms, programming applications, and automating digital tasks.",
+            "Computer programming, building software tools, solving algorithmic logic problems, developing apps, and software engineering.",
+            "Developing mobile applications, automating digital workflows, coding software systems, data science, and technical computer tools.",
+            "Scientific inquiry, computer programming in Python, building web and mobile tech tools, diagnosing code bugs, and software logic."
         ]
     },
     "A": {
@@ -42,10 +42,10 @@ RIASEC_CODES = {
         "emoji": "🎨",
         "color": "#c084fc",  # Soft Purple
         "anchors": [
-            "I love creative writing, storytelling, poetry, literature, sketching, UI UX visual design, and original artistic expression.",
-            "Visual aesthetics, graphic design, illustration, digital arts, media branding, creative writing, and architectural design.",
-            "Original design thinking, fashion, creative photography, multimedia content, theater, and artistic storytelling.",
-            "Expressing personal imagination, typography, visual user interfaces, creative essays, and aesthetic design."
+            "I love user experience design, UI UX visual styling, product design, creative arts, and understanding how users feel and interact.",
+            "Digital product styling, wireframing user interfaces, graphic design, visual aesthetics, and creative user experience design.",
+            "Human-centered design, creative storytelling, artistic prototyping, user journey mapping, and digital aesthetics.",
+            "Expressing creative imagination, typography, visual user interfaces, creative writing, and aesthetic layout design."
         ]
     },
     "S": {
@@ -224,7 +224,7 @@ DEGREE_TAXONOMY = [
         "riasec_secondary": "R",
         "exams": ["JEE Mains", "JEE Advanced", "GUJCET", "NUV-DET"],
         "profile": "Algorithmic thinking, cloud architecture, machine learning systems, and software engineering.",
-        "keywords": ["code", "coding", "software", "algorithm", "computer", "programming", "python", "tech", "developer", "ai"]
+        "keywords": ["code", "coding", "software", "algorithm", "computer", "programming", "python", "tech", "developer", "ai", "app", "apps", "mobile", "automate", "automation", "tech tools", "software tools", "user ease", "user side"]
     },
     {
         "id": "btech_mech_robotics",
@@ -234,7 +234,7 @@ DEGREE_TAXONOMY = [
         "riasec_secondary": "I",
         "exams": ["JEE Mains", "GUJCET", "State CET"],
         "profile": "Kinematics, automotive dynamics, mechatronics, CAD manufacturing, and industrial assembly.",
-        "keywords": ["hardware", "robot", "robotics", "machine", "mechanical", "assemble", "tools", "engine", "physical"]
+        "keywords": ["hardware", "robot", "robotics", "machine", "mechanical", "assemble", "engine", "chassis", "manufacturing", "kinematics", "cad", "mechatronics"]
     },
     {
         "id": "bsc_datascience",
@@ -294,7 +294,7 @@ DEGREE_TAXONOMY = [
         "riasec_secondary": "R",
         "exams": ["UCEED", "NID DAT", "NIFT"],
         "profile": "User interface design, digital product styling, design thinking, visual aesthetics, and creative prototyping.",
-        "keywords": ["design", "ui", "ux", "visual", "art", "creative", "sketch", "graphics", "aesthetic", "prototype"]
+        "keywords": ["design", "ui", "ux", "visual", "art", "creative", "sketch", "graphics", "aesthetic", "prototype", "user ease", "user side", "user experience", "user interface"]
     },
     {
         "id": "ba_psychology",
