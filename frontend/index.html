@@ -189,14 +189,14 @@
                 <!-- Fixed Docked Dossier Banner directly above input box (never scrolls away!) -->
                 <div class="docked-dossier-bar hidden" id="docked-dossier-bar" onclick="toggleArtifactPane(true)">
                     <div class="docked-bar-left">
-                        <span class="docked-bar-icon">📄</span>
+                        <span class="docked-bar-icon" id="docked-bar-icon">📄</span>
                         <div class="docked-bar-text">
-                            <span class="docked-title">CareerSathi Admissions Dossier Ready</span>
-                            <span class="docked-subtitle">Click to view side-by-side recommendation & RIASEC profile</span>
+                            <span class="docked-title" id="docked-title">CareerSathi Admissions Dossier Ready</span>
+                            <span class="docked-subtitle" id="docked-subtitle">Click to view side-by-side recommendation & RIASEC profile</span>
                         </div>
                     </div>
-                    <button type="button" class="btn-docked-open">
-                        <span>View Dossier</span>
+                    <button type="button" class="btn-docked-open" id="btn-docked-open">
+                        <span id="docked-btn-text">View Dossier</span>
                         <span class="docked-arrow">↗</span>
                     </button>
                 </div>

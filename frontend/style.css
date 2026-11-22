@@ -870,6 +870,74 @@ body {
     transform: translateY(-1px);
 }
 
+.docked-dossier-bar.pulse-highlight {
+    border-color: var(--univ-crimson);
+    animation: gentle-glow 2.2s infinite ease-in-out;
+}
+
+@keyframes gentle-glow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(168, 29, 36, 0.25);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(168, 29, 36, 0.10);
+    }
+}
+
+.badge-updated {
+    display: inline-block;
+    background-color: var(--univ-crimson);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    margin-right: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+}
+
+/* In-Chat Dossier Update Card (Appears directly in the chat stream when recommendation recalibrates) */
+.chat-dossier-update-card {
+    background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%);
+    border: 1.5px solid var(--univ-crimson-border);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    margin: 12px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    box-shadow: 0 4px 16px rgba(168, 29, 36, 0.10);
+    animation: slideUp 0.35s ease-out;
+}
+
+.update-card-badge {
+    display: inline-block;
+    background-color: var(--univ-crimson-light);
+    color: var(--univ-crimson-dark);
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    letter-spacing: 0.4px;
+}
+
+.update-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--univ-crimson-dark);
+    margin: 2px 0;
+}
+
+.update-card-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
 .docked-bar-left {
     display: flex;
     align-items: center;

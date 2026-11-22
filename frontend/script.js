@@ -22,6 +22,7 @@ let latestTelemetry = null;
 let currentStageNum = 1;
 let isArtifactSplitOpen = false;
 let activeArtifactTabName = "student";
+let lastRenderedRecommendationTitle = "";
 
 // 6 Holland RIASEC Metadata
 const RIASEC_META = {
@@ -62,6 +63,7 @@ function resetAssessment() {
         rejected_degree: null
     };
     latestDossierReport = null;
+    lastRenderedRecommendationTitle = "";
     currentStageNum = 1;
     toggleArtifactPane(false);
 
@@ -232,10 +234,38 @@ function handleServerResponse(data) {
         renderQuickChips(data.options);
     }
 
-    // Store latest report if provided
+    // Store latest report if provided & detect recommendation changes
     if (data.report) {
+        const newTitle = data.report.primary_recommendation || data.report.primary_degree_name;
+        const previousTitle = lastRenderedRecommendationTitle;
+        const isUpdate = (previousTitle !== "" && previousTitle !== newTitle) || data.is_updated_recommendation;
+        lastRenderedRecommendationTitle = newTitle;
+
         latestDossierReport = data.report;
         renderDossierArtifact(data.report);
+
+        // Update Docked Bar UI dynamically so student knows a new suggestion was made
+        const dockedBar = document.getElementById("docked-dossier-bar");
+        const dockedTitle = document.getElementById("docked-title");
+        const dockedSubtitle = document.getElementById("docked-subtitle");
+        const dockedIcon = document.getElementById("docked-bar-icon");
+
+        if (dockedBar) {
+            dockedBar.classList.remove("hidden");
+            if (isUpdate && previousTitle) {
+                dockedBar.classList.add("pulse-highlight");
+                if (dockedIcon) dockedIcon.innerText = "✨";
+                if (dockedTitle) dockedTitle.innerHTML = `<span class="badge-updated">UPDATED MATCH</span> <strong>${escapeHtml(newTitle)}</strong>`;
+                if (dockedSubtitle) dockedSubtitle.innerText = "CareerSathi has updated your Admissions Dossier • Click to review";
+                
+                // Append in-chat notification card if chat pane doesn't have split open
+                appendInChatUpdateCard(newTitle, data.report.primary_fit);
+            } else {
+                if (dockedIcon) dockedIcon.innerText = "📄";
+                if (dockedTitle) dockedTitle.innerHTML = `<strong>Admissions Dossier Ready</strong>: ${escapeHtml(newTitle)}`;
+                if (dockedSubtitle) dockedSubtitle.innerText = "Click to view side-by-side recommendation & RIASEC profile";
+            }
+        }
     }
 
     // Docked Dossier Banner directly above input box + Navbar Pill
@@ -259,6 +289,24 @@ function handleServerResponse(data) {
     if (isArtifactSplitOpen && latestDossierReport) {
         renderDossierArtifact(latestDossierReport);
     }
+}
+
+function appendInChatUpdateCard(title, fitScore) {
+    const container = document.getElementById("chat-messages-container");
+    const cardDiv = document.createElement("div");
+    cardDiv.className = "chat-dossier-update-card";
+    cardDiv.innerHTML = `
+        <div class="update-card-left">
+            <span class="update-card-badge">✨ NEW RECOMMENDATION READY</span>
+            <h4 class="update-card-title">${escapeHtml(title)}</h4>
+            <p class="update-card-desc">CareerSathi has updated your admissions dossier (${fitScore}% match). Click to open the side pane.</p>
+        </div>
+        <button type="button" class="btn btn-crimson btn-sm update-card-btn" onclick="toggleArtifactPane(true)">
+            View Dossier &nearr;
+        </button>
+    `;
+    container.appendChild(cardDiv);
+    scrollChatToBottom();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

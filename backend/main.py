@@ -114,6 +114,10 @@ async def chat_endpoint(state: ChatState):
     if user_input:
         new_history.append({"role": "user", "content": user_input})
         
+    # Extract all cumulative user utterances
+    user_utterances = [msg["content"] for msg in new_history if msg["role"] == "user"]
+    cumulative_text = " ".join(user_utterances)
+
     # ── ACTION 2: Recalibration / "I Didn't Like This Suggestion" ─────────────
     if state.action == "recalibrate" or "don't like" in user_input.lower() or "didnt like" in user_input.lower() or "not interested" in user_input.lower():
         state.phase = "recalibrating"
@@ -158,10 +162,6 @@ async def chat_endpoint(state: ChatState):
                 "decision_path": trace_decision_tree_path(user_input)
             }
         }
-
-    # Extract all cumulative user utterances
-    user_utterances = [msg["content"] for msg in new_history if msg["role"] == "user"]
-    cumulative_text = " ".join(user_utterances)
     
     # ── SESSIONS 7-10: Linguistic Preprocessing & Morpheme Extraction ────────
     prep_results = preprocess_linguistic_text(cumulative_text)
@@ -180,6 +180,50 @@ async def chat_endpoint(state: ChatState):
     highlights = extract_linguistic_attributions(cumulative_text)
     decision_path = trace_decision_tree_path(cumulative_text)
     
+    # ── ACTION 3: Recalibration Follow-up (Definitive Full Stop) ──────────────
+    if state.phase == "recalibrating":
+        # The student has just specified what they prefer (e.g. "prefer software over hardware")
+        recs = get_career_recommendations(
+            scores=updated_riasec,
+            stream_filter=state.stream,
+            excluded_ids=state.excluded_ids,
+            is_10th=is_10th,
+            user_text=cumulative_text
+        )
+        new_primary_title = recs.get("recommended_title", recs["primary"]["degree"])
+        state.phase = "converged"
+        
+        conclusion = (
+            f"🎯 Understood! I have recalibrated your profile based on your preference "
+            f"and updated your Admissions Dossier to: **{new_primary_title}** ({recs['primary']['fit_score']}% Fit)!\n\n"
+            f"Your updated curriculum, target entrance exams, and syllabus are ready in the side pane. "
+            f"What specific questions do you have about this path, or would you like to explore alternative university degrees?"
+        )
+        new_history.append({"role": "assistant", "content": conclusion})
+        state.history = new_history
+        report = build_dossier_payload(recs, updated_riasec, new_history, is_10th)
+        
+        return {
+            "type": "recalibration_complete",
+            "question": conclusion,
+            "options": ["Tell me about entrance exams", "What is the 4-year curriculum like?", "Tell me about campus placements", "Download Official PDF Dossier"],
+            "can_complete": True,
+            "is_updated_recommendation": True,
+            "stage": 4,
+            "stage_name": "Your recommendation",
+            "report": report,
+            "state": state.model_dump(),
+            "telemetry": {
+                "riasec": updated_riasec,
+                "entropy": entropy_val,
+                "dialogue_mode": "RECALIBRATED & CONVERGED",
+                "indian_streams": stream_affinities,
+                "highlights": highlights,
+                "decision_path": decision_path,
+                "can_complete": True
+            }
+        }
+
     # Determine Journey Rail Stage
     # 1: Interests (turns 1-2), 2: Thinking Style (turns 3-4), 3: Strengths (turns 5-6), 4: Recommendation (turn 6+)
     if state.turn_count <= 2:
@@ -198,6 +242,89 @@ async def chat_endpoint(state: ChatState):
     scenario_turns_done = len(user_utterances)
     can_complete = scenario_turns_done >= 5 or state.turn_count >= 5
     
+    # ── ACTION 4: Converged Advising Mode (Definitive Full Stop) ──────────────
+    # Once assessment has reached Stage 4 / Turn 5+, stop asking repetitive dilemmas!
+    if state.phase == "converged":
+        recs = get_career_recommendations(
+            scores=updated_riasec,
+            stream_filter=state.stream,
+            excluded_ids=state.excluded_ids,
+            is_10th=is_10th,
+            user_text=cumulative_text
+        )
+        report = build_dossier_payload(recs, updated_riasec, new_history, is_10th)
+        
+        # Answer student's query directly as an authoritative counselor
+        direct_ans = answer_student_question(user_input, state.stream, state.education_level, new_history)
+        advising_reply = f"{direct_ans}\n\nFeel free to explore your full dossier on the right, or ask me any other question about admissions, syllabus, or entrance exams!"
+        
+        new_history.append({"role": "assistant", "content": advising_reply})
+        state.history = new_history
+        
+        return {
+            "type": "advising",
+            "question": advising_reply,
+            "options": ["Tell me about entrance exams", "What is the 4-year curriculum like?", "Tell me about campus placements", "Download Official PDF Dossier"],
+            "can_complete": True,
+            "stage": 4,
+            "stage_name": "Your recommendation",
+            "report": report,
+            "state": state.model_dump(),
+            "telemetry": {
+                "riasec": updated_riasec,
+                "entropy": entropy_val,
+                "dialogue_mode": "CONVERGED ADVISING",
+                "indian_streams": stream_affinities,
+                "highlights": highlights,
+                "decision_path": decision_path,
+                "can_complete": True
+            }
+        }
+        
+    # ── ACTION 5: Stage 3 -> Stage 4 Natural Milestone Full Stop ─────────────
+    # At turn 5+, present the synthesized recommendation clearly!
+    if can_complete and state.turn_count >= 5:
+        state.phase = "converged"
+        recs = get_career_recommendations(
+            scores=updated_riasec,
+            stream_filter=state.stream,
+            excluded_ids=state.excluded_ids,
+            is_10th=is_10th,
+            user_text=cumulative_text
+        )
+        primary_title = recs.get("recommended_title", recs["primary"]["degree"])
+        report = build_dossier_payload(recs, updated_riasec, new_history, is_10th)
+        
+        celebratory_closure = (
+            f"🎯 Based on our conversation across your interests, problem-solving style, and team collaboration, "
+            f"I have finalized your Admissions Dossier! Your #1 recommended pathway is: **{primary_title}** ({recs['primary']['fit_score']}% Fit).\n\n"
+            f"Your complete academic roadmap, target entrance exams, and RIASEC telemetry are now ready in the side pane. "
+            f"Feel free to ask me anything about the coursework, exams, or campus opportunities, or let me know if you would like to refine!"
+        )
+        new_history.append({"role": "assistant", "content": celebratory_closure})
+        state.history = new_history
+        
+        return {
+            "type": "converged",
+            "question": celebratory_closure,
+            "options": ["Tell me about entrance exams", "What is the 4-year curriculum like?", "Tell me about campus placements", "Download Official PDF Dossier"],
+            "can_complete": True,
+            "is_updated_recommendation": True,
+            "stage": 4,
+            "stage_name": "Your recommendation",
+            "report": report,
+            "state": state.model_dump(),
+            "telemetry": {
+                "riasec": updated_riasec,
+                "entropy": entropy_val,
+                "dialogue_mode": "CONVERGED",
+                "indian_streams": stream_affinities,
+                "highlights": highlights,
+                "decision_path": decision_path,
+                "can_complete": True
+            }
+        }
+
     # ── TERMINATION CHECK: Turn 15 Hard Cap or Explicit Completion ───────────
     hit_max_cap = state.turn_count >= 15
     wants_completion = state.action == "force_complete" or "show dossier" in user_input.lower() or "generate report" in user_input.lower()
@@ -321,7 +448,7 @@ def build_dossier_payload(recs: Dict, riasec_scores: Dict[str, float], history: 
     user_utterances = [msg["content"] for msg in history if msg["role"] == "user"]
     
     # Extract evidence quotes ("You said: ...")
-    evidence_quotes = extract_representative_quotes(user_utterances, top_traits)
+    evidence_quotes = extract_representative_quotes(user_utterances, top_traits, primary_deg)
     
     # Personalized justifications
     justifications = generate_personalized_justifications(

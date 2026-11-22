@@ -80,55 +80,134 @@ def is_interrogative(text: str) -> bool:
             
     return False
 
-def extract_representative_quotes(user_utterances: List[str], top_traits: List[Dict]) -> List[Dict[str, str]]:
+def extract_representative_quotes(
+    user_utterances: List[str], 
+    top_traits: List[Dict],
+    primary_degree: Dict = None
+) -> List[Dict[str, str]]:
     """
-    Extracts 2 distinct, representative student quotes from the dialogue to ground the
-    Claude-style 'Why this fits you' evidence card.
+    Extracts 2 distinct, substantive student quotes from the dialogue and grounds them
+    SPECIFICALLY in the recommended university degree & Indian stream.
+    Filters out generic selections ('the first one', 'yes', 'coding', 'i did not get your question').
     """
+    junk_exact = {
+        "the first one", "the second one", "first one", "second one", "first", "second",
+        "1", "2", "option 1", "option 2", "yes", "no", "ok", "okay", "sure", "coding", "code",
+        "i did not get your question", "i didnot get your question", "i did not understand",
+        "i didnot understand", "what do you mean", "none", "neither", "both", "teamwork", "team"
+    }
+    
     valid = []
-    # Filter out trivial button responses or 1-word inputs
     for u in user_utterances:
         clean = u.strip()
-        if len(clean) >= 12 and clean.lower() not in ["10th standard", "12th standard", "other", "science (pcm)", "science (pcb)", "commerce & finance", "liberal studies / arts"]:
-            valid.append(clean)
+        clean_lower = clean.lower().rstrip(".,!?")
+        if clean_lower in junk_exact:
+            continue
+        if len(clean) < 12:
+            continue
+        if clean_lower in ["10th standard", "12th standard", "other", "science (pcm)", "science (pcb)", "commerce & finance", "liberal studies / arts"]:
+            continue
+        if clean_lower.startswith("i don't like") or clean_lower.startswith("i didnt like"):
+            continue
+        valid.append(clean)
             
+    deg_name = primary_degree.get("degree", "your recommended program") if primary_degree else "your degree"
+    deg_id = primary_degree.get("id", "") if primary_degree else ""
+    stream_name = primary_degree.get("stream", "Science") if primary_degree else "Science"
+    
     if not valid:
         return [
             {
-                "quote": "Your exploration across technical and structured challenges",
-                "explanation": f"Points to strong {top_traits[0]['name']} aptitude, which requires analytical curiosity."
+                "quote": "Your exploration across technical problem-solving and structured systems",
+                "explanation": f"Directly aligns with {deg_name} in {stream_name}, requiring analytical reasoning and structured execution."
             }
         ]
         
-    t1_name = top_traits[0]["name"]
-    t2_name = top_traits[1]["name"] if len(top_traits) > 1 else "Strategic"
+    def score_quote_for_degree(q_text: str) -> float:
+        score = 1.0
+        q_low = q_text.lower()
+        # High-value domain keywords
+        if deg_id == "btech_cs":
+            for kw in ["software", "app", "mobile", "backend", "system", "automate", "logic", "algorithm", "hardwares", "user side"]:
+                if kw in q_low:
+                    score += 3.0
+        elif deg_id == "btech_mech_robotics":
+            for kw in ["hardware", "robot", "machine", "mechanical", "assemble", "tools", "engine"]:
+                if kw in q_low:
+                    score += 3.0
+        elif deg_id == "bdes_uiux":
+            for kw in ["design", "ui", "ux", "visual", "art", "user", "experience", "creative", "screens"]:
+                if kw in q_low:
+                    score += 3.0
+        elif deg_id in ["ca_bcom", "bba_analytics"]:
+            for kw in ["business", "marketing", "finance", "money", "audit", "account", "startup"]:
+                if kw in q_low:
+                    score += 3.0
+        elif deg_id in ["mbbs_healthcare", "bsc_lifesciences"]:
+            for kw in ["bio", "biology", "patient", "doctor", "health", "hospital", "lab", "medicine"]:
+                if kw in q_low:
+                    score += 3.0
+        # Prefer descriptive sentences over short fragments
+        score += min(2.0, len(q_text) / 40.0)
+        return score
+
+    # Sort valid quotes by degree relevance
+    ranked_quotes = sorted(valid, key=score_quote_for_degree, reverse=True)
     
-    quotes = []
-    # Quote 1: Earliest substantial utterance (interests/instinct)
-    q1 = valid[0]
-    if len(q1) > 85:
-        q1 = q1[:82] + "..."
-    quotes.append({
-        "quote": q1,
-        "explanation": f"Points to natural {t1_name.lower()} instincts, which this discipline actively demands."
-    })
-    
-    # Quote 2: Later utterance (thinking style or execution)
-    if len(valid) > 1:
-        q2 = valid[-1] if valid[-1] != valid[0] else (valid[1] if len(valid) > 2 else valid[-1])
-        if len(q2) > 85:
-            q2 = q2[:82] + "..."
-        quotes.append({
-            "quote": q2,
-            "explanation": f"Demonstrates {t2_name.lower()} problem-solving habits that succeed in this career pathway."
-        })
-    elif len(valid) == 1:
-        quotes.append({
-            "quote": "Consistent preference for structured execution",
-            "explanation": "Highlights your systematic approach to breaking down complex challenges."
+    # Pick top 2 distinct quotes
+    selected = [ranked_quotes[0]]
+    if len(ranked_quotes) > 1:
+        # Pick second that is distinct
+        for cand in ranked_quotes[1:]:
+            if cand.lower() != selected[0].lower() and not (cand.lower() in selected[0].lower() or selected[0].lower() in cand.lower()):
+                selected.append(cand)
+                break
+        if len(selected) == 1:
+            selected.append(ranked_quotes[1])
+            
+    def generate_degree_explanation(quote: str) -> str:
+        q_low = quote.lower()
+        if deg_id == "btech_cs":
+            if any(k in q_low for k in ["softwares over hardwares", "prefer software"]):
+                return f"Directly confirms your decisive focus on Computer Science and software engineering over mechanical hardware."
+            elif any(k in q_low for k in ["backend", "logic behind", "system"]):
+                return f"Aligns with core B.Tech CS coursework in distributed backend systems, database architecture, and algorithmic logic."
+            elif any(k in q_low for k in ["mobile app", "apps", "app works"]):
+                return f"Directly matches modern mobile app engineering, software product design, and client-side architecture."
+            elif any(k in q_low for k in ["automate", "manual", "common people"]):
+                return f"Reflects the core purpose of AI & Computer Science: automating repetitive tasks to solve real-world human needs."
+            elif any(k in q_low for k in ["user side", "issues", "technically"]):
+                return f"Exemplifies Human-Centered Software Engineering, bridging user problem discovery with scalable technical code."
+            elif any(k in q_low for k in ["team", "collaborat", "divide"]):
+                return f"Demonstrates Agile sprint collaboration, an essential skillset for professional software development teams."
+            else:
+                return f"Demonstrates the algorithmic curiosity and technical problem-solving instinct required in {deg_name}."
+        elif deg_id == "bdes_uiux":
+            if any(k in q_low for k in ["user side", "user experience", "experience"]):
+                return f"Directly reflects Human-Computer Interaction (HCI) and user empathy mapping in {deg_name}."
+            elif any(k in q_low for k in ["visual", "screen", "interface", "design"]):
+                return f"Matches core studio coursework in digital wireframing, typography, and visual design systems."
+            else:
+                return f"Demonstrates the creative prototyping and aesthetic design thinking demanded by {deg_name}."
+        elif deg_id in ["ca_bcom", "bba_analytics"]:
+            if any(k in q_low for k in ["finance", "budget", "money", "audit", "account"]):
+                return f"Matches rigorous corporate accounting, taxation compliance, and statutory balance sheet auditing in {deg_name}."
+            else:
+                return f"Demonstrates the strategic commercial mindset and client leadership needed in {deg_name}."
+        elif deg_id in ["mbbs_healthcare", "bsc_lifesciences"]:
+            return f"Aligns with empirical laboratory investigation and diagnostic patient care essential for {deg_name}."
+        else:
+            return f"Grounded in your specific answer, matching core academic expectations for {deg_name} ({stream_name})."
+
+    results = []
+    for s_quote in selected:
+        disp_quote = s_quote if len(s_quote) <= 90 else s_quote[:87] + "..."
+        results.append({
+            "quote": disp_quote,
+            "explanation": generate_degree_explanation(s_quote)
         })
         
-    return quotes
+    return results
 
 def detect_uncertainty(text: str) -> bool:
     """Detects whether user is expressing hesitation, indecisiveness, or saying 'idk'."""

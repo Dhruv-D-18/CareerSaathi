@@ -104,6 +104,7 @@ def generate_dynamic_question(
     team_already_discussed = any(w in history_lower for w in ["team", "solo", "collaborat", "alone", "group", "leading"])
     coding_discussed = any(w in history_lower for w in ["code", "coding", "software", "app", "mobile", "algorithm", "developer"])
     user_ux_discussed = any(w in history_lower for w in ["user", "ux", "ui", "experience", "design", "screens"])
+    backend_logic_discussed = any(w in history_lower for w in ["backend", "intricate logic", "logic behind", "algorithms or", "crafting user", "visual appeal"])
     
     # Resolve student shorthand like "the first one", "first", "coding"
     resolved_reply = user_reply
@@ -120,10 +121,10 @@ def generate_dynamic_question(
         stage_focus = "Ask how they like to tackle problem-solving — breaking it down step-by-step or experimenting hands-on."
     elif not team_already_discussed:
         stage_focus = "Ask whether they prefer working independently with deep focus or collaborating actively in a group."
-    elif coding_discussed or user_ux_discussed:
+    elif (coding_discussed or user_ux_discussed) and not backend_logic_discussed:
         stage_focus = "Ask whether they prefer working on the core logic and technical algorithms, or crafting the user experience and interface."
     else:
-        stage_focus = "Ask what kind of real-world problems they would most enjoy solving with their skills."
+        stage_focus = "Ask what real-world domain (like healthcare apps, daily productivity, educational tools, or finance) they would love to build software for."
 
     # Prompt design for Gemma 2B: Direct, positive, without negative constraint leakage
     if is_uncertain:
@@ -150,8 +151,12 @@ Respond naturally like a friendly guide.
     response = query_local_gemma(prompt, timeout=25, max_tokens=80)
     
     # Intercept repetition of solo vs team if already discussed
-    if response and team_already_discussed and any(w in response.lower() for w in ["solo", "team", "collaborat", "work alone"]):
-        response = "When you build an app or digital tool, do you enjoy writing the background logic and algorithms, or designing how the screens look and feel for users?"
+    if response and team_already_discussed and any(w in response.lower() for w in ["solo", "collaborat", "work alone"]):
+        response = "What real-world problem would you be most excited to build an automated software tool for — like education, healthcare, or daily productivity?"
+
+    # Intercept repetition of backend vs UI if already discussed
+    if response and backend_logic_discussed and any(w in response.lower() for w in ["intricate logic", "backend or", "user interface or", "algorithms or crafting", "visual appeal"]):
+        response = "Between building apps that solve everyday problems for millions of users or designing intelligent AI algorithms, which feels more inspiring?"
         
     # Fail-Safe Fallback
     if not response or len(response.strip()) < 15:
