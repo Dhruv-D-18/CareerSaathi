@@ -800,5 +800,20 @@ function escapeQuotes(str) {
 }
 
 function printDossier() {
+    // Ensure the student dossier tab is active for printing
+    switchArtifactTab('student');
+    
+    // Set a clean document title so the browser defaults to a nice PDF filename
+    const oldTitle = document.title;
+    const degName = (latestDossierReport && latestDossierReport.primary_degree_name)
+        ? latestDossierReport.primary_degree_name.replace(/[^a-zA-Z0-9]/g, "_")
+        : "Admissions_Dossier";
+    document.title = `Navrachana_University_CareerSathi_${degName}`;
+    
     window.print();
+    
+    // Restore title after print dialog closes
+    setTimeout(() => {
+        document.title = oldTitle;
+    }, 1000);
 }
