@@ -1128,20 +1128,30 @@ function escapeQuotes(str) {
 }
 
 function printDossier() {
-    // Ensure the student dossier tab is active for printing
+    // 1. Ensure the student dossier tab is active for printing
     switchArtifactTab('student');
     
-    // Set a clean document title so the browser defaults to a nice PDF filename
+    // 2. Reset scroll position to top so the header and hero card are never clipped!
+    const scrollContainer = document.getElementById("artifact-body-scrollable");
+    if (scrollContainer) {
+        scrollContainer.scrollTop = 0;
+    }
+    window.scrollTo(0, 0);
+    
+    // 3. Set a clean document title so the browser defaults to a nice PDF filename
     const oldTitle = document.title;
     const degName = (latestDossierReport && latestDossierReport.primary_degree_name)
         ? latestDossierReport.primary_degree_name.replace(/[^a-zA-Z0-9]/g, "_")
         : "Admissions_Report";
     document.title = `CareerSaathi_Admissions_Report_${degName}`;
     
-    window.print();
-    
-    // Restore title after print dialog closes
+    // 4. Delay window.print by 100ms to allow DOM layout & scroll reset to apply cleanly
     setTimeout(() => {
-        document.title = oldTitle;
-    }, 1000);
+        window.print();
+        
+        // Restore title after print dialog closes
+        setTimeout(() => {
+            document.title = oldTitle;
+        }, 1000);
+    }, 100);
 }

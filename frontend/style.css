@@ -1888,12 +1888,31 @@ body {
         text-shadow: none !important;
     }
 
-    html, body {
+    html, body,
+    .screen-view,
+    .screen-view.active,
+    #workspace-screen,
+    .workspace-body,
+    .artifact-split-pane,
+    .artifact-body-scrollable,
+    .artifact-tab-content,
+    #content-student-dossier {
         overflow: visible !important;
         background: #ffffff !important;
         color: #1a1a1a !important;
-        font-size: 11pt !important;
+        font-size: 10.5pt !important;
         height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        position: static !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        float: none !important;
     }
 
     /* Hide web app UI chrome */
@@ -1906,31 +1925,9 @@ body {
     .btn-action-sm,
     .btn-action-close,
     .rail-mini-telemetry,
-    #content-examiner-xai {
+    #content-examiner-xai,
+    #landing-screen {
         display: none !important;
-    }
-
-    /* Expand Artifact Pane to full paper width */
-    .artifact-split-pane {
-        width: 100% !important;
-        max-width: 100% !important;
-        box-shadow: none !important;
-        border: none !important;
-        position: static !important;
-        display: block !important;
-        overflow: visible !important;
-        background: transparent !important;
-    }
-
-    .artifact-body-scrollable {
-        overflow: visible !important;
-        padding: 0 !important;
-        height: auto !important;
-    }
-
-    .artifact-tab-content {
-        display: block !important;
-        overflow: visible !important;
     }
 
     /* 1. Official CareerSaathi Print Header */

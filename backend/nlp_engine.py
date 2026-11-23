@@ -239,19 +239,51 @@ def extract_representative_quotes(
 
         # 3. Architecture & Spatial Design
         elif deg_id == "barch_architecture":
-            return f"Demonstrates spatial visualization, structural planning, and sustainable aesthetic design required in {deg_name}."
+            if any(k in q_low for k in ["building", "structure", "construct", "house", "concrete", "bridge"]):
+                return f"Directly reflects architectural structural planning, spatial engineering, and physical construction in {deg_name}."
+            elif any(k in q_low for k in ["draw", "sketch", "art", "creative", "aesthetic", "model"]):
+                return f"Aligns with creative spatial visualization, studio drafting aesthetics, and human-centered architectural design in {deg_name}."
+            else:
+                return f"Demonstrates spatial visualization, structural planning, and sustainable aesthetic design required in {deg_name}."
 
         # 4. Aviation, Defense & Marine
         elif deg_id in ["bsc_aviation", "defense_nda", "merchant_navy"]:
-            return f"Reflects strong situational leadership, operational discipline, and technical navigation demanded by {deg_name}."
+            if any(k in q_low for k in ["fly", "flying", "pilot", "aircraft", "cockpit", "aviation", "flight"]):
+                return f"Directly confirms your flight deck ambition, aeronautical navigation, and pilot training in {deg_name}."
+            elif any(k in q_low for k in ["defense", "army", "navy", "military", "discipline", "service", "country"]):
+                return f"Reflects patriotic commitment, operational discipline, and tactical leadership in {deg_name}."
+            elif any(k in q_low for k in ["ship", "sea", "ocean", "marine", "sail"]):
+                return f"Matches maritime navigation, vessel engineering, and rigorous oceanic operations in {deg_name}."
+            else:
+                return f"Reflects strong situational leadership, operational discipline, and technical navigation demanded by {deg_name}."
 
         # 5. Clinical Medicine, Healthcare & Dentistry
         elif deg_id in ["mbbs_healthcare", "bds_dental", "bsc_nursing", "ayush_medicine", "allied_health"]:
-            return f"Directly confirms empathetic patient-centric care, biological diagnostic curiosity, and hospital healthcare commitment in {deg_name}."
+            if any(k in q_low for k in ["dentist", "dental", "teeth", "tooth", "oral", "orthodont"]):
+                return f"Directly affirms your target clinical aspiration for dental surgery, procedural dexterity, and oral healthcare in {deg_name}."
+            elif any(k in q_low for k in ["comfort", "patient comfort", "empathy", "relieve", "bedside", "compassion"]):
+                return f"Highlights your empathetic commitment to patient comfort, compassionate clinical interaction, and patient-first care."
+            elif any(k in q_low for k in ["only have interest", "interest in healthcare", "healthcare", "hospital", "clinic", "health"]):
+                return f"Confirms your decisive dedication to medical environments, hospital healthcare, and clinical patient service."
+            elif any(k in q_low for k in ["doctor", "mbbs", "surgery", "diagnos", "cure", "disease", "treatment"]):
+                return f"Directly reflects diagnostic curiosity, human physiological pathology, and clinical healing in {deg_name}."
+            elif any(k in q_low for k in ["nurse", "nursing", "critical care", "vital", "triage"]):
+                return f"Aligns with compassionate patient care, intensive medical monitoring, and clinical hospital operations."
+            else:
+                return f"Directly confirms empathetic patient-centric care, biological diagnostic curiosity, and hospital healthcare commitment in {deg_name}."
 
         # 6. Biotech, Pharmacy, Physiotherapy & Veterinary
         elif deg_id in ["b_pharm", "bsc_lifesciences", "bpt_physiotherapy", "bvsc_veterinary"]:
-            return f"Demonstrates empirical scientific curiosity, laboratory experimentation, and therapeutic healthcare focus in {deg_name}."
+            if any(k in q_low for k in ["physio", "physiotherapy", "muscle", "sports", "rehab", "exercise", "bone", "mobility"]):
+                return f"Matches hands-on biomechanical therapy, physical rehabilitation, and sports kinesiology in {deg_name}."
+            elif any(k in q_low for k in ["pharma", "drug", "medicine", "compound", "medicines", "pharmacology"]):
+                return f"Aligns with pharmaceutical formulation, drug synthesis, and laboratory pharmacology in {deg_name}."
+            elif any(k in q_low for k in ["animal", "veterinary", "pet", "pets", "wildlife", "vet"]):
+                return f"Confirms compassionate veterinary care, comparative animal physiology, and clinical diagnostics in {deg_name}."
+            elif any(k in q_low for k in ["bio", "biology", "genetics", "lab", "research", "cell", "microbiology"]):
+                return f"Demonstrates empirical cellular research, laboratory experimentation, and life sciences discovery in {deg_name}."
+            else:
+                return f"Demonstrates empirical scientific curiosity, laboratory experimentation, and therapeutic healthcare focus in {deg_name}."
 
         # 7. Commerce, Accounting, FinTech & Actuarial
         elif deg_id in ["ca_bcom", "bcom_fintech", "actuarial_science", "cs_corporate_law", "cma_cost_accounting"]:
@@ -306,14 +338,32 @@ def extract_representative_quotes(
         if not q2 and len(ranked_quotes) > 1:
             q2 = ranked_quotes[1]
 
+        exp1 = generate_degree_explanation(q1)
+        exp2 = generate_degree_explanation(q2) if q2 else None
+
+        # Absolute deduplication guard: if exp2 is identical or near-identical to exp1, differentiate it!
+        if exp2 and (exp2.strip().lower() == exp1.strip().lower()):
+            if deg_id in ["mbbs_healthcare", "bds_dental", "bsc_nursing", "ayush_medicine", "allied_health"]:
+                exp2 = f"Reinforces your clinical commitment to compassionate patient care, hospital bedside ethics, and healing."
+            elif deg_id in ["btech_cs", "bsc_datascience"]:
+                exp2 = f"Underpins your logical interest in scalable system architecture and software development."
+            elif deg_id in ["ca_bcom", "bcom_fintech", "actuarial_science"]:
+                exp2 = f"Demonstrates the meticulous analytical discipline and compliance rigor required for {deg_name}."
+            elif deg_id in ["bba_analytics", "bhm_hospitality"]:
+                exp2 = f"Highlights client communication and strategic organizational coordination in {deg_name}."
+            elif deg_id in ["bdes_uiux", "bdes_fashion", "bsc_animation_vfx"]:
+                exp2 = f"Reflects your creative design sensibilities, aesthetic visualization, and user empathy."
+            else:
+                exp2 = f"Reinforces foundational academic aptitude and practical competence for {deg_name} ({stream_name})."
+
         selected_items.append({
             "quote": q1 if len(q1) <= 90 else q1[:87] + "...",
-            "explanation": generate_degree_explanation(q1)
+            "explanation": exp1
         })
         if q2:
             selected_items.append({
                 "quote": q2 if len(q2) <= 90 else q2[:87] + "...",
-                "explanation": generate_degree_explanation(q2)
+                "explanation": exp2
             })
         else:
             selected_items.append(get_fallback_card(2))

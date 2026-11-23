@@ -975,8 +975,29 @@ def get_career_recommendations(
                 neg_match = re.search(r'\b(?:not\s+into|not\s+interested|dont\s+like|don\'?t\s+like|hate|dislike|no|never)\s+(?:\w+\s+){0,2}' + re.escape(kw), user_text_lower)
                 if not neg_match:
                     matched_kws.append(kw)
-        if matched_kws:
-            kw_multiplier = min(1.35, 1.0 + (len(matched_kws) * 0.07))
+        # ── UNIVERSAL ASPIRATION & CAREER INTENT ALIGNMENT ─────────────────
+        # Universal NLP pattern for declared student ambition across ALL 36 degrees in the taxonomy:
+        # (e.g. "want to be a dentist", "want to do coding", "dream of becoming an architect", "aim to be a lawyer")
+        # Matches the immediate noun/profession following an aspiration verb:
+        aspiration_pattern = r'\b(?:want\s+to\s+(?:be|become|do|pursue)|aim\s+to|planning\s+to|interested\s+in|become\s+a|be\s+a|dream\s+of\s+(?:being|becoming)|career\s+in)\s+(?:an?\s+)?'
+        
+        has_aspiration_match = False
+        for kw in keywords:
+            if re.search(aspiration_pattern + re.escape(kw) + r'\b', user_text_lower):
+                has_aspiration_match = True
+                break
+                
+        # Also check core title tokens (e.g. "dentist", "doctor", "architect", "lawyer", "physiotherapy")
+        title_tokens = [w.lower() for w in re.findall(r'[a-zA-Z]{4,}', deg["degree"]) if w.lower() not in ["bachelor", "master", "science", "applied", "studies", "technology", "track", "hons"]]
+        for tok in title_tokens:
+            if re.search(aspiration_pattern + re.escape(tok) + r'\b', user_text_lower):
+                has_aspiration_match = True
+                break
+
+        if has_aspiration_match:
+            fit *= 2.25
+        elif matched_kws:
+            kw_multiplier = min(1.40, 1.0 + (len(matched_kws) * 0.10))
             fit *= kw_multiplier
             
         ranked_degrees.append({

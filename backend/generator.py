@@ -123,44 +123,44 @@ def generate_dynamic_question(
         resolved_reply = f"{user_reply} (student selects the second option from your previous question)"
 
     # Detect student's active domain from RIASEC codes and USER-ONLY conversation keywords
-    is_business = top_code in ["E", "C"] or any(w in user_history_lower for w in ["business", "finance", "market", "trade", "startup", "commerce", "money", "invest", "entrepreneur"])
+    is_healthcare = any(w in user_history_lower for w in ["medic", "doctor", "dentist", "dental", "teeth", "tooth", "medicine", "biology", "health", "biotech", "patient", "clinic", "hospital", "pharma", "nursing", "physio", "orthodont"]) or ((top_code in ["I", "S"]) and any(w in user_history_lower for w in ["care", "cure", "diagnos"]))
     is_creative = top_code == "A" or any(w in user_history_lower for w in ["design", "art", "creative", "writing", "magazine", "media", "ui", "ux", "film", "draw", "animation"])
-    is_healthcare = (top_code in ["I", "S"]) and any(w in user_history_lower for w in ["medic", "doctor", "medicine", "biology", "health", "biotech", "patient", "clinic", "hospital", "pharma"])
+    is_business = not is_healthcare and (any(w in user_history_lower for w in ["business", "finance", "market", "trade", "startup", "commerce", "money", "invest", "entrepreneur"]) or (top_code in ["E", "C"] and not any(w in user_history_lower for w in ["code", "tech", "biology", "health", "dentist", "doctor", "hospital", "patient"])))
 
     # Determine Journey Stage with dynamic non-repeating sub-focus tailored to their domain
     if turn_num <= 2:
-        if is_business:
+        if is_healthcare:
+            stage_focus = "Deepen what excites them in science/health — e.g. clinical patient care, laboratory research, or specialized healthcare therapy."
+        elif is_business:
             stage_focus = "Deepen what excites them about business — e.g. launching a startup venture, financial markets/investments, or brand marketing."
         elif is_creative:
             stage_focus = "Deepen what excites them about creative arts — e.g. creative literature, storytelling, fine arts, or graphic illustration. Do NOT mention games, apps, or coding."
-        elif is_healthcare:
-            stage_focus = "Deepen what excites them in science/health — e.g. clinical patient care, laboratory research, or biotechnology."
         else:
             stage_focus = "Deepen what excites them about technology — e.g. software coding, AI algorithms, physical robotics, or tech systems."
     elif turn_num <= 4:
-        if is_business:
+        if is_healthcare:
+            stage_focus = "Ask how they approach scientific problem solving — diagnosing practical real-life cases or empirical scientific investigation."
+        elif is_business:
             stage_focus = "Ask how they like to tackle business challenges — understanding customer needs, analyzing financial data, or creative marketing."
         elif is_creative:
             stage_focus = "Ask how they approach creative projects — spontaneous intuitive expression or structured planning and message development. Do NOT mention video games."
-        elif is_healthcare:
-            stage_focus = "Ask how they approach scientific problem solving — rigorous empirical testing or diagnosing practical real-life cases."
         else:
             stage_focus = "Ask how they like to tackle problem-solving — breaking down logical algorithms or experimenting hands-on with tools."
     elif not team_already_discussed:
-        if is_business:
+        if is_healthcare:
+            stage_focus = "Ask whether they prefer collaborative hospital/clinic teamwork or independent scientific research."
+        elif is_business:
             stage_focus = "Ask whether they prefer leading and negotiating with teams or diving deep into independent financial/strategic analysis."
         elif is_creative:
             stage_focus = "Ask whether they thrive in collaborative creative studios or deep solo artistic flow."
-        elif is_healthcare:
-            stage_focus = "Ask whether they prefer collaborative hospital/clinic teamwork or independent scientific research."
         else:
             stage_focus = "Ask whether they prefer working independently with deep focus or collaborating actively in a group."
+    elif is_healthcare:
+        stage_focus = "Ask what real-world health or scientific breakthrough they would love to contribute to."
     elif is_business:
         stage_focus = "Ask what kind of industry or real-world problem they would love to build a venture or business around."
     elif is_creative:
         stage_focus = "Ask what kind of audience or real-world cause they want their creative work to impact."
-    elif is_healthcare:
-        stage_focus = "Ask what real-world health or scientific breakthrough they would love to contribute to."
     elif (coding_discussed or user_ux_discussed) and not backend_logic_discussed:
         stage_focus = "Ask whether they prefer working on the core logic and technical algorithms, or crafting the user experience and interface."
     else:
@@ -341,12 +341,12 @@ Respond naturally like a friendly guide:
         return False
 
     if already_asked(response):
-        if is_creative:
-            response = "Between designing visual graphics and media, or writing deep narrative stories, which one feels closest to what you'd love doing long-term?"
+        if is_healthcare:
+            response = "In healthcare and clinical sciences, would you rather focus on direct clinical patient care, or laboratory research and diagnostics?"
         elif is_business:
             response = "In a business venture, would you feel more energized pitching strategy to clients, or managing detailed financial budgets and operations?"
-        elif is_healthcare:
-            response = "In healthcare, would you rather focus on direct clinical patient care, or laboratory research and diagnostics?"
+        elif is_creative:
+            response = "Between designing visual graphics and media, or writing deep narrative stories, which one feels closest to what you'd love doing long-term?"
         else:
             response = "Between building software systems that serve millions of users or designing hands-on smart gadgets, which inspires you more?"
 
@@ -406,9 +406,16 @@ def generate_recalibration_inquiry(rejected_degree: str, user_critique: str = ""
 def get_deterministic_fallback_question(code_a: str, code_b: str, is_ambiguous: bool, stream: str, user_text: str = "", turn_num: int = 1) -> str:
     user_lower = user_text.lower()
     
-    # Context-specific business fallback (only if not explicitly negated by user)
+    # Context-specific healthcare / clinical sciences fallback
+    is_healthcare = any(k in user_lower for k in ["medic", "doctor", "dentist", "dental", "teeth", "tooth", "medicine", "biology", "health", "biotech", "patient", "clinic", "hospital", "pharma", "nursing", "physio"]) or (code_a in ["S", "I"] and "pcb" in user_lower)
+    if is_healthcare:
+        if turn_num in [3, 4]:
+            return "When caring for patients or conducting clinical diagnostics, what matters most to you: direct empathetic bedside communication, or methodically investigating physiological root causes?"
+        return "In healthcare and clinical sciences, do you see yourself more drawn to direct hands-on patient care and treatment, or laboratory research and specialized diagnostics?"
+
+    # Context-specific business fallback (only if not explicitly negated by user and not healthcare)
     is_negated_business = any(k in user_lower for k in ["not into business", "dont want business", "don't want business", "dont want to go in business", "don't want to go in business", "no business", "neither"])
-    if not is_negated_business and (any(k in user_lower for k in ["business", "market", "startup", "invest", "money", "sales", "trade", "finance"]) or code_a in ["E", "C"]):
+    if not is_healthcare and not is_negated_business and (any(k in user_lower for k in ["business", "market", "startup", "invest", "money", "sales", "trade", "finance"]) or (code_a in ["E", "C"] and not any(k in user_lower for k in ["code", "tech", "biology", "health", "dentist", "doctor"]))):
         if turn_num in [3, 4]:
             return "When a major business initiative hits an unexpected roadblock, what is your natural reaction? Do you step up to lead and align the team, crunch the numbers to pivot the strategy, or focus on talking to customers to find a solution?"
         return "In a new venture, would you feel more energized pitching strategy and marketing to clients, or managing detailed financial budgets and operations?"
