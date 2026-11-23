@@ -618,6 +618,7 @@ def assess_conversational_signal(history: List[Dict[str, str]], riasec_scores: D
         
     vague_patterns = [
         r'\b(?:idk|no\s*idea|dont\s*know|don\'t\s*know|not\s*sure|never\s*thought|nope|nah|nothing|whatever|fine|maybe|not\s*much|clueless|meh)\b',
+        r'\b(?:neither|none|both|you\s*tell\s*me|tell\s*me|what\s*is\s*best|what\s*is\s*good|best\s*for\s*me|suggest\s*me|i\s*want\s*to\s*know\s*what\s*is\s*best)\b',
         r'^(?:ok|okay|cool|\?+)$'
     ]
     
@@ -669,17 +670,21 @@ def assess_conversational_signal(history: List[Dict[str, str]], riasec_scores: D
     margin = float(round(sorted_vals[0] - sorted_vals[1], 1)) if len(sorted_vals) >= 2 else 0.0
     top_score = sorted_vals[0] if sorted_vals else 16.7
     
-    # Fast, Focused Convergence Criteria (4–5 Turns):
-    # If the student has expressed a clear interest + style, synthesize recommendations immediately!
+    # Robust Convergence Criteria:
+    # Requires genuine domain interest signals, not just turn counting!
     vague_ratio = vague_turns / total_turns
+    has_genuine_domain_signal = len(domain_hits) >= 1 or substantive_words >= 10
+    
     is_converged = (
-        (total_turns >= 4 and (len(domain_hits) >= 1 or substantive_words >= 6) and (margin >= 4.0 or top_score >= 21.0 or h_norm <= 0.88) and vague_ratio < 0.60)
-        or (total_turns >= 5 and vague_ratio < 0.60)
+        total_turns >= 3 and
+        has_genuine_domain_signal and
+        vague_ratio < 0.40 and
+        (margin >= 3.5 or top_score >= 21.0 or h_norm <= 0.85)
     )
     
     is_persistently_vague = (
-        total_turns >= 4 and
-        (vague_ratio >= 0.60 and len(domain_hits) == 0)
+        total_turns >= 3 and
+        (vague_ratio >= 0.50 or len(domain_hits) == 0)
     )
     
     confidence_level = "high" if is_converged else ("moderate" if (total_turns >= 3 and not is_persistently_vague) else "exploratory")

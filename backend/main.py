@@ -104,7 +104,7 @@ async def chat_endpoint(state: ChatState):
                 "riasec": current_riasec,
                 "entropy": 1.0,
                 "dialogue_mode": "ONBOARDING (Academic Profile)",
-                "indian_streams": map_riasec_to_indian_streams(current_riasec),
+                "indian_streams": map_riasec_to_indian_streams(current_riasec, state.stream, is_10th),
                 "highlights": [],
                 "decision_path": []
             }
@@ -161,7 +161,7 @@ async def chat_endpoint(state: ChatState):
                 "riasec": current_riasec,
                 "entropy": 1.0,
                 "dialogue_mode": "STAGE 1: INTERESTS",
-                "indian_streams": map_riasec_to_indian_streams(current_riasec),
+                "indian_streams": map_riasec_to_indian_streams(current_riasec, state.stream, is_10th),
                 "highlights": extract_linguistic_attributions(user_input),
                 "decision_path": []
             }
@@ -210,7 +210,7 @@ async def chat_endpoint(state: ChatState):
                 "riasec": current_riasec,
                 "entropy": 0.5,
                 "dialogue_mode": "RECALIBRATING (Constraint Active)",
-                "indian_streams": map_riasec_to_indian_streams(current_riasec),
+                "indian_streams": map_riasec_to_indian_streams(current_riasec, state.stream, is_10th),
                 "highlights": extract_linguistic_attributions(user_input),
                 "decision_path": trace_decision_tree_path(user_input)
             }
@@ -233,18 +233,18 @@ async def chat_endpoint(state: ChatState):
     is_converged = signal_eval["is_converged"]
     is_persistently_vague = signal_eval["is_persistently_vague"]
     
-    stream_affinities = map_riasec_to_indian_streams(updated_riasec)
+    stream_affinities = map_riasec_to_indian_streams(updated_riasec, state.stream, is_10th)
     highlights = extract_linguistic_attributions(cumulative_text)
     decision_path = trace_decision_tree_path(cumulative_text)
     
     # Smooth Journey Rail Stage (1: Interests, 2: Thinking Style, 3: Strengths, 4: Deep Dive / Recommendation)
-    if state.turn_count <= 1:
+    if state.turn_count <= 2:
         stage_num = 1
         stage_name = "Interests"
-    elif state.turn_count <= 3:
+    elif state.turn_count <= 4:
         stage_num = 2
         stage_name = "Thinking style"
-    elif state.turn_count <= 5:
+    elif state.turn_count <= 6:
         stage_num = 3
         stage_name = "Strengths"
     else:
@@ -252,9 +252,9 @@ async def chat_endpoint(state: ChatState):
         stage_name = "Broad Horizon Discovery" if not is_converged else "Your recommendation"
         
     scenario_turns_done = len(user_utterances)
-    hit_max_cap = state.turn_count >= 6
+    hit_max_cap = state.turn_count >= 8
     wants_completion = state.action == "force_complete" or "show dossier" in user_input.lower() or "show report" in user_input.lower() or "view report" in user_input.lower() or "generate report" in user_input.lower() or "show me recommended" in user_input.lower()
-    can_complete = is_converged or hit_max_cap or state.turn_count >= 4
+    can_complete = is_converged or hit_max_cap or state.turn_count >= 6
     
     # ── ACTION 4: Converged Advising Mode (Post-Convergence Chat) ─────────────
     # Once assessment has reached convergence, answer student's follow-ups directly!
@@ -298,8 +298,8 @@ async def chat_endpoint(state: ChatState):
         }
         
     # ── ACTION 5: Natural Convergence Milestone (Entropy Resolved + Substantive Input) ────
-    # Finalize Admissions Dossier as soon as signal has converged (turn 3+ with clear preference)!
-    if (is_converged and len(user_utterances) >= 3) or (len(user_utterances) >= 4 and not is_persistently_vague):
+    # Finalize Admissions Report only when psychometric signal has truly converged with distinct domain preference!
+    if is_converged and len(user_utterances) >= 3:
         state.phase = "converged"
         recs = get_career_recommendations(
             scores=updated_riasec,

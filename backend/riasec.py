@@ -586,21 +586,44 @@ DEGREE_TAXONOMY = [
     }
 ]
 
-def map_riasec_to_indian_streams(scores: Dict[str, float]) -> Dict[str, float]:
+def map_riasec_to_indian_streams(scores: Dict[str, float], stream: str = "General", is_10th: bool = False) -> Dict[str, float]:
     """
     Computes percentage affinity fit for the 4 Indian 10th/12th academic streams
     using our expert knowledge matrix W_Stream * S.
+    For 12th passouts, strictly enforces Indian statutory eligibility constraints:
+    - PCM cannot legally pursue PCB medical sciences under NMC rules -> PCB = 0%
+    - PCB cannot pursue AICTE B.Tech engineering -> PCM = 0%
+    - Commerce / Arts cannot pursue AICTE B.Tech or Medical MBBS -> PCM = 0%, PCB = 0%
     """
     stream_scores = {}
-    for stream, meta in STREAM_WEIGHTS.items():
+    for st, meta in STREAM_WEIGHTS.items():
         score = sum(meta[code] * scores.get(code, 0.0) for code in RIASEC_CODES.keys())
-        stream_scores[stream] = score
+        stream_scores[st] = score
         
-    # Normalize to 100%
+    # Apply statutory constraints for 12th grade streams
+    if not is_10th and stream:
+        s_lower = stream.lower()
+        if "pcm" in s_lower or "math" in s_lower:
+            # PCM student cannot pursue PCB medical sciences under NMC rules
+            stream_scores["Science (PCB)"] = 0.0
+        elif "pcb" in s_lower or "bio" in s_lower:
+            # PCB student cannot pursue AICTE B.Tech engineering
+            stream_scores["Science (PCM)"] = 0.0
+        elif "commerce" in s_lower:
+            stream_scores["Science (PCM)"] = 0.0
+            stream_scores["Science (PCB)"] = 0.0
+        elif "arts" in s_lower or "humanities" in s_lower or "liberal" in s_lower:
+            stream_scores["Science (PCM)"] = 0.0
+            stream_scores["Science (PCB)"] = 0.0
+            
+    # Normalize active streams to 100%
     tot = sum(stream_scores.values()) or 1.0
     normalized = {}
-    for stream, sc in stream_scores.items():
-        normalized[stream] = float(round((sc / tot) * 100.0, 1))
+    for st, sc in stream_scores.items():
+        if sc == 0.0:
+            normalized[st] = 0.0
+        else:
+            normalized[st] = float(round((sc / tot) * 100.0, 1))
         
     return dict(sorted(normalized.items(), key=lambda x: x[1], reverse=True))
 
@@ -697,7 +720,7 @@ def get_career_recommendations(
     top_code = sorted_riasec[0][0]
     second_code = sorted_riasec[1][0]
     
-    stream_affinities = map_riasec_to_indian_streams(scores)
+    stream_affinities = map_riasec_to_indian_streams(scores, stream_filter, is_10th)
     top_stream = list(stream_affinities.keys())[0]
     
     # ── BRANCH A: EXPLORATORY (BROAD HORIZON / HIGH OPTIONALITY) MODE ───────
