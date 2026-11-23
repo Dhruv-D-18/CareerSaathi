@@ -660,8 +660,37 @@ def get_career_recommendations(
     Supports negative exclusion filtering, explicit keyword boosting, 10th vs 12th differentiation,
     and targeted vs exploratory (Broad Horizon) modes.
     """
-    excluded_ids = excluded_ids or []
+    excluded_ids = list(excluded_ids or [])
     user_text_lower = user_text.lower() if user_text else ""
+    
+    # ── STATUTORY LEGAL ELIGIBILITY CONSTRAINTS (AFTER 12TH IN INDIA) ───────
+    # Enforces NMC, AICTE, and ICAI statutory rules while actively empowering lateral pivots:
+    if not is_10th and stream_filter:
+        sf_clean = stream_filter.lower()
+        if "pcm" in sf_clean or "math" in sf_clean:
+            # Pure PCM without Biology cannot legally sit for NEET or pursue MBBS/BDS/BVSc in India
+            excluded_ids.extend(["mbbs_healthcare", "bds_dental", "bvsc_veterinary", "ayush_medicine"])
+        elif "pcb" in sf_clean or "bio" in sf_clean:
+            # Pure PCB without Mathematics cannot pursue AICTE-accredited B.Tech engineering
+            excluded_ids.extend([
+                "btech_cs", "btech_mech", "btech_civil", "btech_aerospace", 
+                "btech_robotics", "btech_chemical", "btech_ece"
+            ])
+        elif "commerce" in sf_clean:
+            # Commerce students cannot pursue AICTE B.Tech or Medical MBBS
+            excluded_ids.extend([
+                "btech_cs", "btech_mech", "btech_civil", "btech_aerospace", 
+                "btech_robotics", "btech_chemical", "btech_ece",
+                "mbbs_healthcare", "bds_dental", "bvsc_veterinary", "ayush_medicine"
+            ])
+        elif "arts" in sf_clean or "liberal" in sf_clean:
+            # Arts students cannot pursue AICTE B.Tech or Medical MBBS
+            excluded_ids.extend([
+                "btech_cs", "btech_mech", "btech_civil", "btech_aerospace", 
+                "btech_robotics", "btech_chemical", "btech_ece",
+                "mbbs_healthcare", "bds_dental", "bvsc_veterinary", "ayush_medicine"
+            ])
+    excluded_ids = list(set(excluded_ids))
     
     # Sort RIASEC traits
     sorted_riasec = sorted(scores.items(), key=lambda x: x[1], reverse=True)

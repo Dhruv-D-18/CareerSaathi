@@ -193,13 +193,14 @@ def generate_dynamic_question(
     if is_negated_math:
         return "Understood, no heavy mathematical theory! Would you rather explore hands-on creative arts and media, or practical commerce, law, and communication?"
 
-    # ── GUARD 2: Confusion & Non-Comprehension ("i did not get it", "didn't understand", "meaning?") ──
-    confusion_patterns = [
-        r'\b(?:did\s*not\s*get|didn\'?t\s*get|not\s*get\s*it|did\s*not\s*understand|didn\'?t\s*understand)\b',
-        r'\b(?:what\s*do\s*you\s*mean|what\s*does\s*that\s*mean|what\s*meaning|confused|confusing|not\s*clear)\b',
-        r'^(?:what|huh|pardon|meaning\??|mean\??|what\s*meaning\??|what\s*does\s*it\s*mean\??|\?+)$'
+    # ── GUARD 2: Explicit Question Misunderstanding (Short, Literal Comprehension Failure) ──
+    # ONLY triggers if user literally didn't understand the chatbot's English words, NOT life dilemmas
+    is_short_input = len(u_clean.split()) <= 4
+    explicit_misunderstand_patterns = [
+        r'^(?:what|huh|pardon|meaning\??|mean\??|what\s*meaning\??|what\s*do\s*you\s*mean\??|what\s*does\s*that\s*mean\??|\?+)$',
+        r'^(?:didn\'?t\s*understand|did\s*not\s*understand|not\s*clear|didn\'?t\s*get\s*it|did\s*not\s*get\s*it)$'
     ]
-    is_confusion = any(re.search(pat, u_clean) for pat in confusion_patterns)
+    is_confusion = is_short_input and any(re.search(pat, u_clean) for pat in explicit_misunderstand_patterns)
     if is_confusion:
         if is_creative or any(w in user_history_lower for w in ["creative", "art", "writing", "design", "arts"]):
             return "No worries at all, let's keep it super simple! When you think of creative work: do you prefer expressing yourself through words and stories, or through visual art like drawing and design?"
@@ -210,17 +211,6 @@ def generate_dynamic_question(
         else:
             return "No problem at all, let's take a step back! In your free time, what kind of activities feel most natural to you: creative visual arts, exploring tech gadgets, or organizing and chatting with friends?"
 
-    # ── GUARD 3: Turn 2 Guaranteed First-Step Domain Alignment ──────────────
-    if turn_num == 2:
-        if any(w in u_clean for w in ["creative", "writing", "art", "arts", "design", "magazine", "literature", "draw"]):
-            return "Wonderful! Within the creative arts and writing: do you feel more drawn to storytelling and writing (like fiction, scripts, and articles), or visual expression (like sketching, painting, and graphic design)?"
-        elif any(w in u_clean for w in ["software", "tech", "tools", "code", "coding", "program"]):
-            return "Awesome! When thinking about technology: does your curiosity lean more towards writing code and building software logic, or designing how users interact with the visual interface?"
-        elif any(w in u_clean for w in ["science", "lab", "experiment", "biology", "chemistry"]):
-            return "Fascinating! In scientific discovery: do you lean more towards biological sciences and healthcare, or physics, chemistry, and experimental laboratory research?"
-        elif any(w in u_clean for w in ["business", "finance", "marketing", "trade", "stall", "commerce"]):
-            return "Great! In the world of business and economics: are you more excited by marketing, branding, and launching new ideas, or analyzing financial data, investments, and market trends?"
-
     # ── GUARD 4: Explicit Student Vulnerability & Progressive Self-Doubt ──────
     doubt_keywords = [
         "what i am good at", "what im good at", "not good at", "no skills",
@@ -229,7 +219,8 @@ def generate_dynamic_question(
         "dont know", "don't know", "no idea", "nothing", "idk",
         "i have no idea", "not sure"
     ]
-    is_self_doubt = any(k in user_reply.lower() for k in doubt_keywords) or is_uncertain
+    has_positive_direction = any(k in user_reply.lower() for k in ["like", "love", "enjoy", "prefer", "want", "build", "interested", "robotics", "coding", "art", "design", "business", "science", "math"])
+    is_self_doubt = (any(k in user_reply.lower() for k in doubt_keywords) or is_uncertain) and not has_positive_direction
     past_doubts = sum(1 for m in history if m["role"] == "user" and any(k in m["content"].lower() for k in doubt_keywords))
     
     if is_self_doubt:
@@ -285,15 +276,15 @@ Keep it conversational, relatable, and under 25 words."""
         prompt = f"""You are CareerSaathi, an empathetic, smart career mentor for Indian students ({education_level}, {stream}).
 Recent conversation:
 {recent_context}
-Student: "{resolved_reply}"
+Student just said: "{resolved_reply}"
 Goal: {stage_focus}
 
-Respond naturally like a friendly guide.
-1. Be direct and conversational. Do not repeat what they just said.
-2. Ask ONE engaging, open question advancing the conversation towards their goal.
+Respond naturally like a friendly guide:
+1. In your first sentence, warmly and specifically acknowledge the student's actual statement, dilemma, or feeling (such as balancing family business vs personal passions like robotics, parental pressure, or uncertainty). Validate it naturally in 6-12 words.
+2. In your second sentence, ask ONE engaging, open-ended question that advances the conversation towards their counseling goal and helps them explore what kind of work excites them.
 3. Ground your question in relatable Indian student experiences (e.g., school exhibition projects, literature, creative arts, gadgets, clubs, local ventures). Never use foreign clichés like 'lemonade stands'.
 4. If discussing creative arts, DO NOT mention video games, apps, or coding.
-5. Keep it under 30 words. No multiple choice, bullets, or lectures."""
+5. Keep it under 35 words total. No multiple choice, bullets, or lectures."""
 
     response = query_local_gemma(prompt, timeout=25, max_tokens=80)
     
@@ -415,8 +406,9 @@ def generate_recalibration_inquiry(rejected_degree: str, user_critique: str = ""
 def get_deterministic_fallback_question(code_a: str, code_b: str, is_ambiguous: bool, stream: str, user_text: str = "", turn_num: int = 1) -> str:
     user_lower = user_text.lower()
     
-    # Context-specific business fallback
-    if any(k in user_lower for k in ["business", "market", "startup", "invest", "money", "sales", "trade", "finance"]) or code_a in ["E", "C"]:
+    # Context-specific business fallback (only if not explicitly negated by user)
+    is_negated_business = any(k in user_lower for k in ["not into business", "dont want business", "don't want business", "dont want to go in business", "don't want to go in business", "no business", "neither"])
+    if not is_negated_business and (any(k in user_lower for k in ["business", "market", "startup", "invest", "money", "sales", "trade", "finance"]) or code_a in ["E", "C"]):
         if turn_num in [3, 4]:
             return "When a major business initiative hits an unexpected roadblock, what is your natural reaction? Do you step up to lead and align the team, crunch the numbers to pivot the strategy, or focus on talking to customers to find a solution?"
         return "In a new venture, would you feel more energized pitching strategy and marketing to clients, or managing detailed financial budgets and operations?"
@@ -465,23 +457,26 @@ def get_time_greeting() -> str:
 
 def get_initial_onboarding_inquiry(edu_level: str) -> str:
     """
-    Warm time-aware onboarding message collecting marks and competitive exam status upfront.
+    Warm time-aware onboarding message.
+    For 10th: Focuses on broad stream interests and natural thinking style.
+    For 12th: Specifically inquires about their 12th stream (PCM, PCB, Commerce, Arts)
+    to enforce statutory eligibility and discover high-potential lateral pivots in India.
     """
     greeting = get_time_greeting()
     is_10th = "10" in (edu_level or "").lower()
     if is_10th:
         return (
             f"{greeting}! Welcome to **CareerSaathi** — your personalized AI career & admissions counselor.\n\n"
-            f"Before we dive into your counselling and find the perfect stream for you, "
-            f"what are your approximate **10th marks or percentage**? "
-            f"Also, are you preparing for or considering any competitive streams (like Science with JEE/NEET, Commerce with CA, or Humanities)?"
+            f"Before we explore what stream fits your natural style of thinking: "
+            f"what are your approximate **10th marks or percentage**?\n\n"
+            f"Also, are you leaning towards any particular stream (like Science, Commerce, or Liberal Studies / Arts), or are you completely undecided?"
         )
     else:
         return (
             f"{greeting}! Welcome to **CareerSaathi** — your personalized AI career & admissions counselor.\n\n"
-            f"Before we dive into your counselling and map out your best-fit university degrees, "
-            f"what are your approximate **10th / 12th board marks or percentage**, "
-            f"and have you appeared for (or are preparing for) any competitive exams like JEE, NEET, CUET, CET, or CLAT?"
+            f"To help us map out legally eligible and high-potential university degrees for you: "
+            f"**which stream did you study in 12th** — Science (PCM), Science (PCB), Commerce, or Arts / Humanities?\n\n"
+            f"(Also, feel free to mention your approximate 12th percentage or any competitive entrance exams you are considering!)"
         )
 
 
@@ -506,64 +501,56 @@ def get_academic_score_acknowledgment(user_input: str, score_tier: str, score_ra
         return "Wonderful! Exploring from your genuine curiosities and natural thinking instincts with zero pressure is the most rewarding way to choose a direction."
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 5. Opening Scenario Generator (Turn 1 Icebreaker)
-# ─────────────────────────────────────────────────────────────────────────────
-
 def get_opening_scenario(stream: str, edu_level: str) -> str:
     """
-    Provides a balanced, dynamic scenario grounded in realistic student life,
-    specifically adapted for After 10th (Stream selection) vs After 12th (Degree selection).
-    Draws from an icebreaker pool so opening turns feel fresh and conversational every time.
+    Provides an open-ended, non-manipulative opening dilemma grounded in authentic student life.
+    Does NOT force rigid multiple-choice options, encouraging natural self-expression.
+    Adapted specifically for After 10th (stream discovery) vs After 12th (stream-aware degree discovery & lateral pivots).
     """
     stream_clean = stream.lower() if stream else ""
     edu_clean = edu_level.lower() if edu_level else ""
     
-    # After 10th Standard: Choosing a Stream (Dynamic Pool)
+    # After 10th Standard: Choosing a Stream (Open & Relatable School Scenarios)
     if "10" in edu_clean or "stream" in stream_clean:
         scenarios_10th = [
-            "To help work out which stream fits how you think: imagine you have complete freedom to choose a project for a school exhibition. Would you rather build a working tech/science project, run a commercial trade stall, or design a creative magazine/exhibit?",
-            "Welcome! To explore what stream fits your natural style of thinking: when you have free time on the weekend, what kind of activities do you find yourself drawn to — exploring tech tools and gadgets, experimenting with science, managing practical business ideas, or creative arts and writing?",
-            "Welcome! Imagine your school invites you to lead an initiative: would you rather develop a technical/scientific solution, organize a student-run commercial marketplace, or direct a creative media and storytelling campaign?"
+            "Welcome! To explore what direction fits your natural style of thinking with zero pressure: when you have free time on the weekend, or when you get to work on a project you actually care about, what kind of activities, hobbies, or subjects do you naturally find yourself enjoying? (Feel free to share anything — from building things or science, to art, business, gaming, or if you're not sure at all!)",
+            "Welcome! Imagine you have complete freedom to choose a project for a school exhibition or community initiative. What kind of project would you genuinely be excited to create or lead? (Tell me what sounds fun, what sounds boring, or if you have no clue!)",
+            "Welcome! To explore what stream fits your natural instincts: what is one subject or activity in school where time just flies by, and what is one thing that bores you to tears? (Be completely honest!)"
         ]
         return random.choice(scenarios_10th)
         
-    # After 12th: Specific Stream or Degree (Dynamic Pool)
+    # After 12th: Specific Stream or Degree (Stream-Aware Discovery & Lateral Pivots)
     if "pcm" in stream_clean or "math" in stream_clean:
         pcm_scenarios = [
-            "Welcome! Imagine you are invited to join an inter-college technical expo. Would you rather write the software algorithms and build the app, design and assemble the physical robotics hardware, or analyze mathematical data models?",
-            "Welcome! As you plan your engineering journey: what challenges excite you most — writing scalable software code and AI, engineering physical machines and aerospace vehicles, or designing smart architecture and infrastructure?"
+            "Welcome! As a 12th PCM student, you have complete statutory flexibility in India — you can pursue high-tech engineering and computational fields, OR pivot seamlessly into quantitative finance, business management (CA/BBA), or creative design and law! What kind of problems, projects, or day-to-day challenges make you genuinely curious?",
+            "Welcome! Having completed 12th PCM: do you see yourself continuing in pure engineering and technology (like software, AI, or robotics), or are you interested in exploring lateral pivots into quantitative business, financial analysis, or creative technology?"
         ]
         return random.choice(pcm_scenarios)
     elif "pcb" in stream_clean or "bio" in stream_clean:
         pcb_scenarios = [
-            "Welcome! Imagine you are spending a day at an innovation science center. Would you rather investigate cellular biology and genetic tests in a lab, explore medical healthcare and patient therapy, or study ecological and plant sciences?",
-            "Welcome! In the healthcare and biological world: do you feel most inspired by clinical patient care in a hospital, discovering new pharmaceutical drugs in a lab, or studying genetics and biotechnology?"
+            "Welcome! With a 12th PCB background, you have pathways into clinical medicine and hospital care, high-growth research fields (biotechnology, genomics, pharmacy), as well as lateral pivots into psychology, hospital administration, or law. What kind of impact or daily work excites you most?",
+            "Welcome! As you plan your medical or life-science journey: do you feel most drawn to patient clinical care in a hospital, research and innovation in a lab, or healthcare business and psychological sciences?"
         ]
         return random.choice(pcb_scenarios)
     elif "commerce" in stream_clean:
         comm_scenarios = [
-            "Welcome! Imagine you are working on a new business project. Would you rather create marketing campaigns and negotiate partnership deals, analyze financial data and investment budgets, or study economic market trends?",
-            "Welcome! In the world of business and finance: would you rather launch an innovative startup venture, master the stock markets and investment banking, or ensure rigorous corporate auditing and financial accounting?"
+            "Welcome! As a 12th Commerce student, you have pathways across corporate finance, Chartered Accountancy (ICAI), stock markets and business analytics, as well as digital product design and corporate law. What kind of business challenges or creative projects naturally spark your curiosity?",
+            "Welcome! In the world of business and management: do you see yourself pursuing technical finance and accounting (like CA or CFA), building corporate strategy and marketing ventures (BBA), or exploring corporate law?"
         ]
         return random.choice(comm_scenarios)
     elif "arts" in stream_clean or "liberal" in stream_clean:
         arts_scenarios = [
-            "Welcome! Imagine you are contributing to a creative cultural initiative. Would you rather write original stories and articles, design visual graphics and digital media, or explore human psychology and behavioral counseling?",
-            "Welcome! In the liberal arts and design landscape: does your mind lean towards designing digital product UI/UX and visual branding, advocating for legal rights and corporate law, or understanding human psychology?"
+            "Welcome! In Liberal Studies and Arts, careers span psychology, digital media, corporate and civil law, civil services, and UI/UX design. What topics or creative projects do you find yourself most drawn to?",
+            "Welcome! When you think about university: does your mind lean towards creative visual arts & digital product design, understanding human behavior & psychology, or advocating for public policy and legal rights?"
         ]
         return random.choice(arts_scenarios)
     else:
         general_scenarios = [
-            "To discover your ideal university degree: when you think about spending the next four years diving deep into a subject, does your mind naturally lean towards solving algorithmic logic and technology, investigating natural/medical sciences, managing business/finance, or creative design and humanities?",
-            "Welcome! As you prepare for your undergraduate journey: what kind of real-world impact excites you most — building software and technology systems, diagnosing biological/health problems, leading corporate business ventures, or designing creative visual experiences?",
-            "Welcome! Imagine you have complete academic freedom in college: would you rather immerse yourself in high-tech engineering and computational logic, experimental laboratory research and healthcare, strategic business and investments, or creative arts and design?"
+            "Welcome! As you think about your university journey: what kind of subjects, real-world problems, or projects make you genuinely curious? (Tell me what you enjoy doing, what you dislike, or if you're completely undecided!)",
+            "Welcome! Imagine you have complete academic freedom in college: what kind of problems would you love to spend the next few years understanding and solving? (Feel free to describe what sounds exciting, or if you have no idea!)"
         ]
         return random.choice(general_scenarios)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 5. Personalized Career Justification Generator
-# ─────────────────────────────────────────────────────────────────────────────
 
 def generate_personalized_justifications(
     primary_degree: Dict,

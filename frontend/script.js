@@ -246,6 +246,9 @@ function handleServerResponse(data) {
     // Render Quick Option Chips
     if (data.options && data.options.length > 0) {
         renderQuickChips(data.options);
+    } else {
+        const wrapper = document.getElementById("quick-chips-wrapper");
+        if (wrapper) wrapper.innerHTML = "";
     }
 
     // Store latest report if provided & detect recommendation changes

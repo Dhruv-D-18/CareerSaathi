@@ -92,25 +92,10 @@ async def chat_endpoint(state: ChatState):
         state.history = new_history
         state.riasec_state = current_riasec
         
-        # Initial suggested chips to capture marks / exam plans easily
-        init_chips = [
-            "85%+ in 10th Boards",
-            "70% – 85% in 10th",
-            "55% – 70% in 10th",
-            "Under 55% in 10th",
-            "Explore based on interests first"
-        ] if is_10th else [
-            "85%+ Boards (JEE / NEET / CUET)",
-            "70% – 85% Boards",
-            "55% – 70% Boards / State CET",
-            "Under 55% Boards",
-            "Explore based on interests first"
-        ]
-        
         return {
             "type": "question",
             "question": opening_q,
-            "options": init_chips,
+            "options": [],
             "can_complete": False,
             "stage": 1,
             "stage_name": "Academic Background",
@@ -134,6 +119,18 @@ async def chat_endpoint(state: ChatState):
         if score_info:
             state.score_tier = score_info["tier"]
             state.score_raw = score_info["raw_score"]
+            
+        # Detect 12th stream on Turn 0 for After 12th students to enforce statutory eligibility
+        if not is_10th and user_input:
+            u_lower = user_input.lower()
+            if any(re.search(rf"\b{re.escape(k)}\b", u_lower) for k in ["pcm", "engineering", "maths", "math"]):
+                state.stream = "Science (PCM)"
+            elif any(re.search(rf"\b{re.escape(k)}\b", u_lower) for k in ["pcb", "biology", "medical", "neet", "bio"]):
+                state.stream = "Science (PCB)"
+            elif any(re.search(rf"\b{re.escape(k)}\b", u_lower) for k in ["commerce", "account", "accounts", "finance", "bcom", "ca"]):
+                state.stream = "Commerce & Finance"
+            elif any(re.search(rf"\b{re.escape(k)}\b", u_lower) for k in ["arts", "humanities", "liberal", "history", "psychology", "design"]):
+                state.stream = "Liberal Studies & Arts"
 
     # ── ACTION 1B: Onboarding Score Validation ➔ Interests (Turn 0 -> Turn 1) ──
     if state.turn_count == 0:
@@ -152,22 +149,10 @@ async def chat_endpoint(state: ChatState):
         new_history.append({"role": "assistant", "content": transition_reply})
         state.history = new_history
         
-        interest_chips = [
-            "Building software or tech tools",
-            "Science experiments in a lab",
-            "Creative writing, arts or design",
-            "Business, finance or marketing"
-        ] if is_10th else [
-            "Coding and software engineering",
-            "Medical, biology and healthcare",
-            "Business analytics and finance",
-            "UI/UX product design and arts"
-        ]
-        
         return {
             "type": "question",
             "question": transition_reply,
-            "options": interest_chips,
+            "options": [],
             "can_complete": False,
             "stage": 1,
             "stage_name": "Interests",
@@ -215,7 +200,7 @@ async def chat_endpoint(state: ChatState):
         return {
             "type": "recalibration",
             "question": recal_inquiry,
-            "options": ["Something more creative & design-led", "More pure technology & coding", "Healthcare & human sciences"],
+            "options": [],
             "can_complete": True,
             "stage": 4,
             "stage_name": "Recalibrating",
@@ -336,7 +321,7 @@ async def chat_endpoint(state: ChatState):
         celebratory_closure = (
             f"🎯 Based on our conversation across your interests, problem-solving style, and team collaboration, "
             f"I have finalized your Admissions Report!\n\n"
-            f"Rather than locking you into a single rigid path, here are your **Top 3 Recommended Pathways** based on your natural cognitive alignment:\n\n"
+            f"Here are your **Top 3 Recommended Pathways** based on your natural cognitive alignment:\n\n"
             f"1. **{primary_title}** (`{rec1['fit_score']}% Fit`) — *Your #1 natural match for your core interests*\n"
             f"2. **{t2_title}** (`{rec2['fit_score']}% Fit`) — *Adjacent specialisation with technical/applied depth*\n"
             f"3. **{t3_title}** (`{rec3['fit_score']}% Fit`) — *Versatile complementary track with broad career flexibility*\n\n"
@@ -558,7 +543,7 @@ async def chat_endpoint(state: ChatState):
     return {
         "type": "question",
         "question": full_response,
-        "options": quick_chips,
+        "options": [],
         "can_complete": can_complete,
         "stage": stage_num,
         "stage_name": stage_name,
